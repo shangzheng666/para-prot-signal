@@ -183,7 +183,7 @@ function renderFeed() {
   emptyState.hidden = items.length > 0;
 
   feedList.innerHTML = items
-    .map((item) => {
+    .map((item, index) => {
       const score = getScore(item);
       const saved = state.saved[item.id] ? " active" : "";
       const voted = state.votes[item.id] ? " active" : "";
@@ -209,14 +209,17 @@ function renderFeed() {
 
       return `
         <li class="feed-item">
-          <div class="score-control">
+          <div class="score-control" aria-label="rank and score">
+            <span class="rank-number">${index + 1}.</span>
             <button class="icon-button vote-button${voted}" type="button" title="标记重点" aria-label="标记重点 ${escapeHtml(item.title)}" data-id="${escapeHtml(item.id)}">▲</button>
             <span class="score">${score}</span>
           </div>
 
           <article class="item-main">
-            <a class="item-title" href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.title)}</a>
-            <span class="source">${escapeHtml(item.source)}</span>
+            <h3 class="item-heading">
+              <a class="item-title" href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.title)}</a>
+              <span class="source">${escapeHtml(item.source)}</span>
+            </h3>
             <p class="why">${escapeHtml(item.why)}</p>
             <div class="meta">${meta}</div>
           </article>
