@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>para.prot.signal</title>
+    <meta
+      name="description"
+      content="弓形虫、疟原虫和相关寄生虫方向的科研文献日报。"
+    />
+    <link rel="icon" href="./assets/mark.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="para.prot.signal home">
+        <img src="./assets/mark.svg" alt="" width="32" height="32" />
+        <span>para.prot.signal</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#feed">日报</a>
+        <a href="#tags">主题</a>
+        <a href="#office">来源</a>
+        <a href="#about">关于</a>
+      </nav>
+
+      <button class="button button-primary" id="openSubmit" type="button">
+        <span aria-hidden="true">+</span>
+        <span>添加链接</span>
+      </button>
+    </header>
+
+    <main>
+      <section class="masthead" id="about">
+        <div>
+          <p class="eyebrow">Toxoplasma · Plasmodium · Malaria</p>
+          <h1>弓形虫和疟原虫方向的每日科研信号。</h1>
+          <p class="statusline" id="dataFreshness"></p>
+        </div>
+        <form class="searchbar" role="search">
+          <label class="sr-only" for="feedSearch">搜索文献</label>
+          <input id="feedSearch" type="search" placeholder="搜索基因、虫种、药物、疫苗..." />
+        </form>
+      </section>
+
+      <section class="workspace" aria-label="para.prot.signal feed workspace">
+        <aside class="sidebar" id="tags" aria-label="Research topics">
+          <h2>主题</h2>
+          <div class="tag-list" id="tagList"></div>
+        </aside>
+
+        <section class="feed-column" id="feed">
+          <div class="feed-toolbar">
+            <h2>今日文献</h2>
+            <div class="segmented" aria-label="Feed ranking">
+              <button class="segment active" type="button" data-sort="hot">重点</button>
+              <button class="segment" type="button" data-sort="recent">最新</button>
+              <button class="segment" type="button" data-sort="top">热度</button>
+            </div>
+          </div>
+
+          <ol class="feed-list" id="feedList"></ol>
+          <p class="empty-state" id="emptyState" hidden>没有匹配的文献。</p>
+        </section>
+
+        <aside class="rail" id="office" aria-label="Sources and topics">
+          <section class="panel">
+            <h2>追踪方向</h2>
+            <div class="editor-row">
+              <span class="avatar">T</span>
+              <div>
+                <strong>Toxoplasma gondii</strong>
+                <span>毒力、免疫、疫苗、基因组</span>
+              </div>
+            </div>
+            <div class="editor-row">
+              <span class="avatar alt">P</span>
+              <div>
+                <strong>Plasmodium</strong>
+                <span>疟原虫、药物抗性、传播</span>
+              </div>
+            </div>
+            <div class="editor-row">
+              <span class="avatar warm">M</span>
+              <div>
+                <strong>Malaria parasite</strong>
+                <span>宿主互作、诊断、流行病学</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>数据源</h2>
+            <ul class="mini-list">
+              <li>PubMed / NCBI E-utilities</li>
+              <li>按发布日期抓取</li>
+              <li>标题、期刊、作者、摘要</li>
+              <li>本地保存为 research-data.js</li>
+            </ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <dialog class="submit-dialog" id="submitDialog">
+      <form method="dialog" class="submit-form" id="submitForm">
+        <div class="dialog-head">
+          <h2>添加文献或链接</h2>
+          <button class="icon-button" value="cancel" aria-label="关闭" type="submit">x</button>
+        </div>
+
+        <label>
+          标题
+          <input name="title" required maxlength="160" />
+        </label>
+
+        <label>
+          URL
+          <input name="url" required type="url" placeholder="https://pubmed.ncbi.nlm.nih.gov/..." />
+        </label>
+
+        <label>
+          主题
+          <select name="tag">
+            <option>Toxoplasma</option>
+            <option>Plasmodium</option>
+            <option>Malaria parasite</option>
+            <option>Host immunity</option>
+            <option>Vaccine</option>
+          </select>
+        </label>
+
+        <div class="dialog-actions">
+          <button class="button" value="cancel" type="submit">取消</button>
+          <button class="button button-primary" value="submit" type="submit">添加</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="./research-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

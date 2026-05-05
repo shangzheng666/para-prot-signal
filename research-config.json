@@ -1,0 +1,18 @@
+{
+  "days": 7,
+  "retmax_per_topic": 25,
+  "topics": [
+    {
+      "tag": "Toxoplasma",
+      "query": "(Toxoplasma gondii[Title/Abstract] OR toxoplasmosis[Title/Abstract])"
+    },
+    {
+      "tag": "Plasmodium",
+      "query": "(Plasmodium[Title/Abstract] OR Plasmodium falciparum[Title/Abstract] OR Plasmodium vivax[Title/Abstract])"
+    },
+    {
+      "tag": "Malaria parasite",
+      "query": "(malaria parasite[Title/Abstract] OR malaria parasites[Title/Abstract])"
+    }
+  ]
+}
