@@ -96,6 +96,12 @@ button {
   color: #5eead4;
 }
 
+.topbar-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
 .brand,
 .nav-links,
 .button,
@@ -691,6 +697,11 @@ h2 {
     gap: 13px;
     overflow-x: auto;
     padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
   }
 
   main {
@@ -704,12 +715,16 @@ h2 {
   }
 
   h1 {
-    font-size: 29px;
+    font-size: 27px;
   }
 
   .rail {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 14px;
+  }
+
+  .sidebar {
+    padding: 12px 14px;
   }
 }
 
@@ -720,6 +735,10 @@ h2 {
     white-space: nowrap;
   }
 
+  .btn-label {
+    display: none;
+  }
+
   .feed-toolbar {
     align-items: flex-start;
     flex-direction: column;
@@ -727,15 +746,20 @@ h2 {
   }
 
   .feed-item {
-    grid-template-columns: 62px minmax(0, 1fr) 28px;
-    gap: 9px;
+    grid-template-columns: 58px minmax(0, 1fr) 26px;
+    gap: 8px;
+    padding: 13px 14px;
   }
 
   .rank-number {
-    min-width: 18px;
+    min-width: 16px;
   }
 
   .why {
     -webkit-line-clamp: 3;
+  }
+
+  .note-panel-actions {
+    flex-wrap: wrap;
   }
 }

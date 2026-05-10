@@ -25,14 +25,16 @@
         <a href="#about">关于</a>
       </nav>
 
-      <button class="button" id="exportNotes" type="button" onclick="exportNotes()" title="导出所有笔记为 Markdown 文件">
-        <span aria-hidden="true">↓</span>
-        <span>导出笔记</span>
-      </button>
-      <button class="button button-primary" id="openSubmit" type="button">
-        <span aria-hidden="true">+</span>
-        <span>添加链接</span>
-      </button>
+      <div class="topbar-actions">
+        <button class="button" id="exportNotes" type="button" onclick="exportNotes()" title="导出所有笔记为 Markdown 文件">
+          <span aria-hidden="true">↓</span>
+          <span class="btn-label">导出笔记</span>
+        </button>
+        <button class="button button-primary" id="openSubmit" type="button">
+          <span aria-hidden="true">+</span>
+          <span>添加链接</span>
+        </button>
+      </div>
     </header>
 
     <main>
