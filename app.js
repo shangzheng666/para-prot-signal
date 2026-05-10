@@ -43,6 +43,7 @@ const state = {
   query: "",
   votes: JSON.parse(localStorage.getItem("parasiteSignalVotes") || "{}"),
   saved: JSON.parse(localStorage.getItem("parasiteSignalSaved") || "{}"),
+  notes: JSON.parse(localStorage.getItem("parasiteSignalNotes") || "{}"),
 };
 
 const feedList = document.querySelector("#feedList");
@@ -84,6 +85,35 @@ function normalizeItem(item) {
 function persist() {
   localStorage.setItem("parasiteSignalVotes", JSON.stringify(state.votes));
   localStorage.setItem("parasiteSignalSaved", JSON.stringify(state.saved));
+  localStorage.setItem("parasiteSignalNotes", JSON.stringify(state.notes));
+}
+
+function exportNotes() {
+  const lines = [];
+  for (const [id, note] of Object.entries(state.notes)) {
+    if (!note.trim()) continue;
+    const item = state.items.find((i) => i.id === id);
+    if (!item) continue;
+    lines.push(`## ${item.title}`);
+    lines.push(`- 来源: ${item.journal || item.source}`);
+    lines.push(`- 日期: ${item.pubDate}`);
+    lines.push(`- 链接: ${item.url}`);
+    if (item.pmid) lines.push(`- PMID: ${item.pmid}`);
+    lines.push(`\n### 我的笔记\n\n${note}`);
+    lines.push("\n---\n");
+  }
+
+  if (lines.length === 0) {
+    alert("还没有任何笔记可导出。");
+    return;
+  }
+
+  const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `research-notes-${new Date().toISOString().slice(0, 10)}.md`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function escapeHtml(value) {
@@ -207,6 +237,11 @@ function renderFeed() {
         .filter(Boolean)
         .join("");
 
+      const note = state.notes[item.id] || "";
+      const hasNote = note.trim().length > 0;
+      const noteActive = hasNote ? " active" : "";
+      const noteLabel = hasNote ? "查看笔记" : "添加笔记";
+
       return `
         <li class="feed-item">
           <div class="score-control" aria-label="rank and score">
@@ -222,9 +257,18 @@ function renderFeed() {
             </h3>
             <p class="why">${escapeHtml(item.why)}</p>
             <div class="meta">${meta}</div>
+            <button class="note-btn${noteActive}" type="button" data-id="${escapeHtml(item.id)}" title="${noteLabel}">✎ ${noteLabel}</button>
           </article>
 
           <button class="icon-button save-button${saved}" type="button" title="收藏" aria-label="收藏 ${escapeHtml(item.title)}" data-id="${escapeHtml(item.id)}">★</button>
+
+          <div class="note-panel" hidden data-id="${escapeHtml(item.id)}">
+            <textarea class="note-textarea" placeholder="记录你的想法、思考或笔记...">${escapeHtml(note)}</textarea>
+            <div class="note-panel-actions">
+              <button class="button note-save-btn" type="button" data-id="${escapeHtml(item.id)}">保存笔记</button>
+              <button class="button note-close-btn" type="button" data-id="${escapeHtml(item.id)}">收起</button>
+            </div>
+          </div>
         </li>
       `;
     })
@@ -270,6 +314,39 @@ document.addEventListener("click", (event) => {
     state.saved[id] = !state.saved[id];
     persist();
     renderFeed();
+    return;
+  }
+
+  const noteBtn = event.target.closest(".note-btn");
+  if (noteBtn) {
+    const id = noteBtn.dataset.id;
+    const panel = feedList.querySelector(`.note-panel[data-id="${id}"]`);
+    if (panel) {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) panel.querySelector("textarea").focus();
+    }
+    return;
+  }
+
+  const noteSaveBtn = event.target.closest(".note-save-btn");
+  if (noteSaveBtn) {
+    const id = noteSaveBtn.dataset.id;
+    const panel = feedList.querySelector(`.note-panel[data-id="${id}"]`);
+    const noteText = panel.querySelector("textarea").value;
+    state.notes[id] = noteText;
+    persist();
+    const btn = feedList.querySelector(`.note-btn[data-id="${id}"]`);
+    const filled = noteText.trim().length > 0;
+    btn.classList.toggle("active", filled);
+    btn.textContent = `✎ ${filled ? "查看笔记" : "添加笔记"}`;
+    panel.hidden = true;
+    return;
+  }
+
+  const noteCloseBtn = event.target.closest(".note-close-btn");
+  if (noteCloseBtn) {
+    const id = noteCloseBtn.dataset.id;
+    feedList.querySelector(`.note-panel[data-id="${id}"]`).hidden = true;
   }
 });
 
