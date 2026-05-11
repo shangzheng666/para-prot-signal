@@ -1,0 +1,483 @@
+/* ============================================================
+   lab.css — para.prot.signal lab homepage
+   Standalone stylesheet; does not depend on styles.css
+   ============================================================ */
+
+:root {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color-scheme: light;
+
+  --hero-bg: #6b8fa0;
+  --sketch: rgba(12, 26, 50, 0.42);
+  --sketch-thin: rgba(12, 26, 50, 0.28);
+  --nav-bg: #0f1117;
+  --text: #1f2933;
+  --muted: #6b7280;
+  --line: #e4eae8;
+  --accent: #0f766e;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--text);
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.lab-hero {
+  position: relative;
+  height: 75vh;
+  min-height: 420px;
+  background: var(--hero-bg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ---- Bio-canvas: CSS parasite illustration ---- */
+
+.bio-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Shared shape token */
+.sh {
+  position: absolute;
+  background: transparent;
+  border: 1.8px solid var(--sketch);
+}
+
+/* --- Tachyzoite (elongated crescent, banana-shaped) --- */
+.sh-tach {
+  width: 140px;
+  height: 42px;
+  border-radius: 50% 90% 90% 10% / 50% 50% 50% 50%;
+}
+
+/* Nucleus dot inside tachyzoite */
+.sh-tach::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sketch-thin);
+  top: 50%;
+  right: 28px;
+  transform: translateY(-50%);
+}
+
+.tach-tl {
+  top: -18px;
+  left: -28px;
+  transform: rotate(28deg);
+  width: 180px;
+  height: 52px;
+}
+
+.tach-tl2 {
+  top: 42px;
+  left: 80px;
+  transform: rotate(12deg);
+  width: 110px;
+  height: 34px;
+}
+
+/* --- Oocyst (two-lobed peanut shape) --- */
+.sh-oocyst {
+  width: 75px;
+  height: 55px;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+}
+
+.sh-oocyst::before {
+  content: '';
+  position: absolute;
+  width: 70px;
+  height: 52px;
+  border-radius: 45% 45% 55% 55% / 40% 40% 60% 60%;
+  border: 1.8px solid var(--sketch);
+  top: 36px;
+  left: -2px;
+}
+
+/* thin waist divider line between the two lobes */
+.sh-oocyst::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  border-top: 1.5px solid var(--sketch-thin);
+  top: 50%;
+  left: 0;
+}
+
+.ooc-tc {
+  top: 18px;
+  left: calc(36% - 38px);
+  transform: rotate(-12deg);
+}
+
+/* --- Sporozoite (thin elongated rod) --- */
+.sh-sporo {
+  width: 160px;
+  height: 18px;
+  border-radius: 50% 90% 90% 10% / 50% 50% 50% 50%;
+}
+
+.sporo-tc {
+  top: 55px;
+  left: calc(48% - 80px);
+  transform: rotate(18deg);
+}
+
+/* --- Bradyzoite (small crescent, reused everywhere) --- */
+.sh-bz {
+  width: 20px;
+  height: 11px;
+  border-radius: 50% 80% 80% 20% / 50% 50% 50% 50%;
+  transform: rotate(var(--r, 0deg));
+}
+
+/* --- Cluster container (flex wrap → grape-bunch look) --- */
+.sh-cluster {
+  position: absolute;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cluster-tr {
+  top: 8px;
+  right: calc(4% - 10px);
+  width: 115px;
+}
+
+/* Right-middle cluster is taller and denser */
+.cluster-rm {
+  top: 35%;
+  right: -18px;
+  width: 105px;
+  gap: 4px;
+}
+
+/* --- Tissue cyst (large circle with bradyzoites inside) --- */
+.sh-cyst {
+  border-radius: 48% 52% 45% 55% / 52% 48% 53% 47%;
+  border-width: 2.2px;
+  overflow: hidden;
+  position: absolute;
+  display: block;
+}
+
+.cyst-bl {
+  width: 172px;
+  height: 162px;
+  bottom: -45px;
+  left: 52px;
+}
+
+/* distribute bradyzoites inside the cyst */
+.cyst-bl .sh-bz:nth-child(1)  { top: 22px;  left: 20px;  transform: rotate(10deg); }
+.cyst-bl .sh-bz:nth-child(2)  { top: 22px;  left: 48px;  transform: rotate(-20deg); }
+.cyst-bl .sh-bz:nth-child(3)  { top: 22px;  left: 76px;  transform: rotate(5deg); }
+.cyst-bl .sh-bz:nth-child(4)  { top: 22px;  left: 104px; transform: rotate(-12deg); }
+.cyst-bl .sh-bz:nth-child(5)  { top: 22px;  left: 132px; transform: rotate(18deg); }
+.cyst-bl .sh-bz:nth-child(6)  { top: 48px;  left: 10px;  transform: rotate(-8deg); }
+.cyst-bl .sh-bz:nth-child(7)  { top: 48px;  left: 38px;  transform: rotate(22deg); }
+.cyst-bl .sh-bz:nth-child(8)  { top: 48px;  left: 66px;  transform: rotate(-15deg); }
+.cyst-bl .sh-bz:nth-child(9)  { top: 48px;  left: 94px;  transform: rotate(7deg); }
+.cyst-bl .sh-bz:nth-child(10) { top: 48px;  left: 122px; transform: rotate(-25deg); }
+.cyst-bl .sh-bz:nth-child(11) { top: 74px;  left: 18px;  transform: rotate(15deg); }
+.cyst-bl .sh-bz:nth-child(12) { top: 74px;  left: 46px;  transform: rotate(-5deg); }
+.cyst-bl .sh-bz:nth-child(13) { top: 74px;  left: 74px;  transform: rotate(28deg); }
+.cyst-bl .sh-bz:nth-child(14) { top: 74px;  left: 102px; transform: rotate(-18deg); }
+.cyst-bl .sh-bz:nth-child(15) { top: 74px;  left: 130px; transform: rotate(3deg); }
+.cyst-bl .sh-bz:nth-child(16) { top: 100px; left: 28px;  transform: rotate(-10deg); }
+.cyst-bl .sh-bz:nth-child(17) { top: 100px; left: 56px;  transform: rotate(20deg); }
+.cyst-bl .sh-bz:nth-child(18) { top: 100px; left: 84px;  transform: rotate(-22deg); }
+.cyst-bl .sh-bz:nth-child(19) { top: 100px; left: 112px; transform: rotate(12deg); }
+.cyst-bl .sh-bz:nth-child(20) { top: 126px; left: 50px;  transform: rotate(-6deg); }
+
+/* --- Sporulated oocyst (4 inner sporoblasts) --- */
+.sh-sporocyst {
+  border-radius: 46% 54% 50% 50% / 50% 50% 46% 54%;
+  border-width: 2px;
+  overflow: hidden;
+  position: absolute;
+}
+
+.sc-bc {
+  width: 110px;
+  height: 100px;
+  bottom: 28px;
+  left: calc(44% - 55px);
+  transform: rotate(5deg);
+}
+
+/* Four inner sporoblasts (quadrants) */
+.sc-q {
+  position: absolute;
+  width: 42px;
+  height: 38px;
+  border: 1.5px solid var(--sketch-thin);
+  border-radius: 50%;
+}
+
+.sc-q1 { top: 8px;  left: 8px; }
+.sc-q2 { top: 8px;  left: 56px; }
+.sc-q3 { top: 52px; left: 8px; }
+.sc-q4 { top: 52px; left: 56px; }
+
+/* --- Central divider lines for sporocyst --- */
+.sh-sporocyst::before {
+  content: '';
+  position: absolute;
+  width: 1.5px;
+  height: 100%;
+  background: var(--sketch-thin);
+  left: 50%;
+}
+.sh-sporocyst::after {
+  content: '';
+  position: absolute;
+  height: 1.5px;
+  width: 100%;
+  background: var(--sketch-thin);
+  top: 50%;
+}
+
+/* ---- Hero text ---- */
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  padding: 0 24px;
+}
+
+.hero-title {
+  font-size: clamp(30px, 6.5vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  margin: 0 0 14px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.hero-sub {
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  opacity: 0.82;
+  margin: 0;
+}
+
+/* ============================================================
+   SECTION NAV (dark bar below hero — Lourido Lab style)
+   ============================================================ */
+
+.section-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
+  height: 48px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.section-nav a {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.section-nav a:hover {
+  color: #fff;
+}
+
+/* ============================================================
+   WELCOME SECTION
+   ============================================================ */
+
+.lab-welcome {
+  background: #fff;
+  padding: 72px 24px 80px;
+}
+
+.welcome-inner {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 56px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.welcome-main h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 22px;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.welcome-main p {
+  font-size: 14px;
+  line-height: 1.78;
+  color: #374151;
+  margin: 0 0 18px;
+}
+
+.welcome-main p:last-of-type {
+  margin-bottom: 28px;
+}
+
+.cta-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  padding: 8px 18px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cta-link:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---- News panel ---- */
+
+.news-panel {
+  border-left: 1px solid var(--line);
+  padding-left: 36px;
+}
+
+.news-panel h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 28px;
+}
+
+.news-item {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f2f5f4;
+}
+
+.news-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.news-date {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin: 0 0 5px;
+}
+
+.news-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.news-body {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.lab-footer {
+  background: var(--nav-bg);
+  color: rgba(255, 255, 255, 0.42);
+  text-align: center;
+  padding: 20px 24px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.lab-footer p { margin: 0; }
+
+.lab-footer a {
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+
+.lab-footer a:hover {
+  color: #fff;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 780px) {
+  .welcome-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .news-panel {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 40px;
+  }
+
+  .section-nav {
+    gap: 28px;
+  }
+
+  /* Hide some illustration elements at small sizes */
+  .cluster-rm,
+  .tach-tl2,
+  .sporo-tc {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .cluster-tr {
+    display: none;
+  }
+
+  .cyst-bl {
+    left: -20px;
+  }
+}

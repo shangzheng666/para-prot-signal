@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>para.prot.signal — Lab</title>
+    <meta name="description" content="寄生虫分子生物学研究 — Toxoplasma gondii · Plasmodium · Malaria" />
+    <link rel="icon" href="./assets/mark.svg" />
+    <link rel="stylesheet" href="./lab.css" />
+  </head>
+  <body>
+
+    <!-- HERO: full-width with CSS bio illustration -->
+    <section class="lab-hero">
+      <div class="bio-canvas" aria-hidden="true">
+
+        <!-- Top-left: large single tachyzoite -->
+        <div class="sh sh-tach tach-tl"></div>
+
+        <!-- Top-left secondary: smaller tachyzoite -->
+        <div class="sh sh-tach tach-tl2"></div>
+
+        <!-- Top-center: oocyst (two-lobed shape) -->
+        <div class="sh sh-oocyst ooc-tc"></div>
+
+        <!-- Top-center: sporozoite (thin elongated) -->
+        <div class="sh sh-sporo sporo-tc"></div>
+
+        <!-- Top-right: bradyzoite cluster (grape-bunch style) -->
+        <div class="sh-cluster cluster-tr" role="presentation">
+          <div class="sh sh-bz" style="--r:5deg"></div>
+          <div class="sh sh-bz" style="--r:-18deg"></div>
+          <div class="sh sh-bz" style="--r:22deg"></div>
+          <div class="sh sh-bz" style="--r:-3deg"></div>
+          <div class="sh sh-bz" style="--r:14deg"></div>
+          <div class="sh sh-bz" style="--r:-25deg"></div>
+          <div class="sh sh-bz" style="--r:8deg"></div>
+          <div class="sh sh-bz" style="--r:-12deg"></div>
+          <div class="sh sh-bz" style="--r:0deg"></div>
+          <div class="sh sh-bz" style="--r:30deg"></div>
+          <div class="sh sh-bz" style="--r:-9deg"></div>
+          <div class="sh sh-bz" style="--r:17deg"></div>
+          <div class="sh sh-bz" style="--r:-22deg"></div>
+          <div class="sh sh-bz" style="--r:6deg"></div>
+          <div class="sh sh-bz" style="--r:-15deg"></div>
+          <div class="sh sh-bz" style="--r:20deg"></div>
+        </div>
+
+        <!-- Bottom-left: tissue cyst with bradyzoites inside -->
+        <div class="sh sh-cyst cyst-bl">
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+          <div class="sh sh-bz"></div>
+        </div>
+
+        <!-- Bottom-center: sporulated oocyst (diamond-like) -->
+        <div class="sh sh-sporocyst sc-bc">
+          <div class="sc-q sc-q1"></div>
+          <div class="sc-q sc-q2"></div>
+          <div class="sc-q sc-q3"></div>
+          <div class="sc-q sc-q4"></div>
+        </div>
+
+        <!-- Right-middle: dense merozoite cluster -->
+        <div class="sh-cluster cluster-rm" role="presentation">
+          <div class="sh sh-bz" style="--r:-10deg"></div>
+          <div class="sh sh-bz" style="--r:15deg"></div>
+          <div class="sh sh-bz" style="--r:-5deg"></div>
+          <div class="sh sh-bz" style="--r:22deg"></div>
+          <div class="sh sh-bz" style="--r:-18deg"></div>
+          <div class="sh sh-bz" style="--r:8deg"></div>
+          <div class="sh sh-bz" style="--r:-25deg"></div>
+          <div class="sh sh-bz" style="--r:3deg"></div>
+          <div class="sh sh-bz" style="--r:19deg"></div>
+          <div class="sh sh-bz" style="--r:-12deg"></div>
+          <div class="sh sh-bz" style="--r:27deg"></div>
+          <div class="sh sh-bz" style="--r:-7deg"></div>
+          <div class="sh sh-bz" style="--r:13deg"></div>
+          <div class="sh sh-bz" style="--r:-21deg"></div>
+          <div class="sh sh-bz" style="--r:4deg"></div>
+          <div class="sh sh-bz" style="--r:-16deg"></div>
+          <div class="sh sh-bz" style="--r:24deg"></div>
+          <div class="sh sh-bz" style="--r:-2deg"></div>
+          <div class="sh sh-bz" style="--r:11deg"></div>
+          <div class="sh sh-bz" style="--r:-28deg"></div>
+          <div class="sh sh-bz" style="--r:6deg"></div>
+          <div class="sh sh-bz" style="--r:-14deg"></div>
+          <div class="sh sh-bz" style="--r:20deg"></div>
+          <div class="sh sh-bz" style="--r:-9deg"></div>
+        </div>
+
+      </div><!-- /bio-canvas -->
+
+      <div class="hero-content">
+        <h1 class="hero-title">PARA.PROT.SIGNAL</h1>
+        <p class="hero-sub">Parasitology Literature Signal</p>
+      </div>
+    </section>
+
+    <!-- SECTION NAV (dark bar below hero, like Lourido Lab) -->
+    <nav class="section-nav" aria-label="Page sections">
+      <a href="#welcome">WELCOME</a>
+      <a href="#news">NEWS</a>
+      <a href="./index.html">RESEARCH FEED</a>
+    </nav>
+
+    <!-- WELCOME -->
+    <section class="lab-welcome" id="welcome">
+      <div class="welcome-inner">
+        <div class="welcome-main">
+          <h2>Welcome</h2>
+          <p>
+            Our work is focused on understanding the molecular events that enable apicomplexan
+            parasites to remain widespread and deadly infectious agents. These single-celled
+            eukaryotes comprise a phylum of organisms that parasitize diverse animal hosts. Many
+            important human pathogens belong to this group, including the invasive agents of
+            malaria (<em>Plasmodium</em> spp.) and toxoplasmosis (<em>Toxoplasma gondii</em>).
+          </p>
+          <p>
+            We use <em>T. gondii</em> to model features conserved throughout the phylum, such as
+            the reliance on calcium signaling to regulate motility. We combine several approaches
+            spanning phospho-proteomics, chemical genetics, and genome editing to investigate the
+            underlying biology of these organisms. Our work seeks to expand our understanding of
+            eukaryotic diversity and identify specific features that can be targeted to treat
+            parasite infections.
+          </p>
+          <p>
+            This site aggregates recent PubMed literature on <em>Toxoplasma gondii</em>,
+            <em>Plasmodium</em>, and related malaria parasites, refreshed weekly via NCBI
+            E-utilities. Use the research feed to track, vote, save, and annotate papers.
+          </p>
+          <a href="./index.html" class="cta-link">Open Research Feed →</a>
+        </div>
+
+        <div class="news-panel" id="news">
+          <h3>Lab News</h3>
+
+          <div class="news-item">
+            <p class="news-date">May 2025</p>
+            <p class="news-headline">Feed now tracks <em>Plasmodium vivax</em> literature</p>
+            <p class="news-body">
+              PubMed queries expanded to include <em>P. vivax</em> alongside
+              <em>P. falciparum</em> and <em>T. gondii</em> — capturing broader
+              malaria parasite biology.
+            </p>
+          </div>
+
+          <div class="news-item">
+            <p class="news-date">April 2025</p>
+            <p class="news-headline">Weekly data refresh pipeline launched</p>
+            <p class="news-body">
+              Automated Python script fetches and filters the latest 7-day PubMed
+              results, scoring articles by recency and relevance.
+            </p>
+          </div>
+
+          <div class="news-item">
+            <p class="news-date">March 2025</p>
+            <p class="news-headline">Note-taking and export feature added</p>
+            <p class="news-body">
+              Users can now annotate individual papers and export all notes as a
+              structured Markdown file for offline review.
+            </p>
+          </div>
+
+          <div class="news-item">
+            <p class="news-date">January 2025</p>
+            <p class="news-headline">para.prot.signal launched</p>
+            <p class="news-body">
+              Initial release with <em>Toxoplasma gondii</em> tracking, vote/save
+              system, and real-time PubMed integration.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="lab-footer">
+      <p>
+        para.prot.signal &mdash; Parasitology Literature Aggregator &mdash;
+        Data from <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed / NCBI</a>
+        &mdash; <a href="./index.html">Research Feed →</a>
+      </p>
+    </footer>
+
+  </body>
+</html>
