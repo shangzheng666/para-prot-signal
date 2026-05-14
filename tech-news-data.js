@@ -1,4 +1,4 @@
-window.techNewsLastUpdated = "2026-05-14 06:20:52 +0000";
+window.techNewsLastUpdated = "2026-05-14 07:49:41 +0000";
 window.techNewsItems = [
   {
     "title": "Think Twice, Act Once: Verifier-Guided Action Selection For Embodied Agents",
@@ -6073,6 +6073,94 @@ window.techNewsItems = [
     "category": "AI 产业"
   },
   {
+    "title": "Why Vision LLMs Force A Rethink Of Edge AI Hardware",
+    "link": "https://semiengineering.com/why-vision-llms-force-a-rethink-of-edge-ai-hardware/",
+    "description": "Peak TOPS is becoming a weaker proxy for delivered edge performance. The post Why Vision LLMs Force A Rethink Of Edge AI Hardware appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "SOCAMM2: Bringing LPDDR5X Benefits To AI Servers",
+    "link": "https://semiengineering.com/socamm2-bringing-lpddr5x-benefits-to-ai-servers/",
+    "description": "Preserving LPDDR's energy efficiency advantages while restoring the modularity expected in server systems. The post SOCAMM2: Bringing LPDDR5X Benefits To AI Servers appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Vision-Language-Action Models Arrive",
+    "link": "https://semiengineering.com/vision-language-action-models-arrive/",
+    "description": "An emerging AI architecture for embedded autonomy challenges edge efficiency. The post Vision-Language-Action Models Arrive appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Introducing “The Architecture Speaks”",
+    "link": "https://semiengineering.com/introducing-the-architecture-speaks/",
+    "description": "An experimental AI chatbot acts as a guide to the Arm architecture, providing quick answers to complex technical questions. The post Introducing “The Architecture Speaks” appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Chiplets Need A New Workflow",
+    "link": "https://semiengineering.com/chiplets-need-a-new-workflow/",
+    "description": "Multi-die assemblies are facing full system-level challenges, but engineering teams need coordinated and repeatable ways to identify risks early and scale reliably. The post Chiplets Need A New Workflow appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Structured Or Unstructured Meshes: What Works Best For Turbomachinery CFD",
+    "link": "https://semiengineering.com/structured-or-unstructured-meshes-what-works-best-for-turbomachinery-cfd/",
+    "description": "Comparing the accuracy of two meshing workflows when dealing with complex blade geometries. The post Structured Or Unstructured Meshes: What Works Best For Turbomachinery CFD appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Flash Getting Stacked High-Bandwidth Version",
+    "link": "https://semiengineering.com/flash-getting-stacked-high-bandwidth-version/",
+    "description": "Inspired by HBM, HBF could improve AI efficiency in 3D flash memory. The post Flash Getting Stacked High-Bandwidth Version appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Gates Add Functionality, But Wires Create Problems",
+    "link": "https://semiengineering.com/gates-add-functionality-but-wires-create-problems/",
+    "description": "Wires are treated as a lesser concern, but their neglect is becoming critical at advanced nodes. The post Gates Add Functionality, But Wires Create Problems appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "ASIC Prototyping — New Design Realities Demand A New Approach",
+    "link": "https://semiengineering.com/asic-prototyping-new-design-realities-demand-a-new-approach/",
+    "description": "Why at-speed prototyping is necessary to deal with rising design complexity, and to maintain verification agility and coverage. The post ASIC Prototyping — New Design Realities Demand A New Approach appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "Harnessing Artificial Intelligence For Trusted IC Signoff",
+    "link": "https://semiengineering.com/harnessing-artificial-intelligence-for-trusted-ic-signoff/",
+    "description": "AI brings speed and confidence to semiconductor verification. The post Harnessing Artificial Intelligence For Trusted IC Signoff appeared first on Semiconductor Engineering.",
+    "pub_date": "2026-05-14",
+    "source": "SemiEngineering",
+    "category": "半导体"
+  },
+  {
+    "title": "GTA 6 Pre-Orders Reportedly Opening This Monday, May 18, According to Leaked Best Buy Email",
+    "link": "https://wccftech.com/gta-6-pre-orders-may-18-best-buy-leak/",
+    "description": "Rockstar Games might be very close to opening the GTA 6 pre-order campaign. The rumor comes from multiple gamers who, as reported by YouTuber Frogboyx1Gaming, received a Best Buy affiliate email referencing a \"GTA 6 Pre-Order (Physical Game)\" promotional window running May 18–21, 2026, with a 5% affiliate commission offer. To clarify, this is the promotional window for the aforementioned commission for Best Buy affiliates, not the GTA 6 pre-order period, which will predictably continue until the",
+    "pub_date": "2026-05-14",
+    "source": "Wccftech",
+    "category": "芯片/市场"
+  },
+  {
     "title": "Notion just turned its workspace into a hub for AI agents",
     "link": "https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/",
     "description": "Notion’s new developer platform lets teams connect AI agents, external data sources, and custom code directly into their workspace as the company pushes deeper into agentic productivity software.",
@@ -6223,38 +6311,6 @@ window.techNewsItems = [
     "pub_date": "2026-05-13",
     "source": "The Verge AI",
     "category": "AI 产业"
-  },
-  {
-    "title": "DFT In Automotive",
-    "link": "https://semiengineering.com/dft-in-automotive/",
-    "description": "What's needed to ensure reliability of automotive chips, and why it’s about to get even tougher. The post DFT In Automotive appeared first on Semiconductor Engineering.",
-    "pub_date": "2026-05-13",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "Lasers Are The Heartbeat Of The Optical AI Data Center",
-    "link": "https://semiengineering.com/lasers-are-the-heartbeat-of-the-optical-ai-data-center/",
-    "description": "These III-V semiconductors are essential for super-high-bandwidth optical interconnects. The post Lasers Are The Heartbeat Of The Optical AI Data Center appeared first on Semiconductor Engineering.",
-    "pub_date": "2026-05-13",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "Scaling PCIe Controllers for AI Bandwidth: A Multistream Architecture Analysis for 64 GT/s and 128 GT/s",
-    "link": "https://semiengineering.com/scaling-pcie-controllers-for-ai-bandwidth-a-multistream-architecture-analysis-for-64-gt-s-and-128-gt-s/",
-    "description": "As PCIe moves toward 128 GT/s and beyond, multistream architecture transitions from an optimization to a requirement. The post Scaling PCIe Controllers for AI Bandwidth: A Multistream Architecture Analysis for 64 GT/s and 128 GT/s appeared first on Semiconductor Engineering.",
-    "pub_date": "2026-05-13",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "Blog Review: May 13",
-    "link": "https://semiengineering.com/blog-review-may-13-3/",
-    "description": "GPU rasterizer for computational lithography; restructuring techniques; inline memory encryption; automotive electronic stability program. The post Blog Review: May 13 appeared first on Semiconductor Engineering.",
-    "pub_date": "2026-05-13",
-    "source": "SemiEngineering",
-    "category": "半导体"
   },
   {
     "title": "MRAM Gets Its Own SIG",
@@ -6561,14 +6617,6 @@ window.techNewsItems = [
     "category": "芯片/市场"
   },
   {
-    "title": "NVIDIA Announces 007 First Light GeForce RTX 50 Series Bundle, Starting With RTX 5060 Ti",
-    "link": "https://wccftech.com/nvidia-announces-007-first-light-geforce-rtx-50-series-bundle-starting-with-rtx-5060-ti/",
-    "description": "This might be the first time NVIDIA is giving away a game with a 60-class card in the RTX 50 series. NVIDIA Bundles 007 First Light With GeForce RTX 50 Series; GeForce RTX 5060 Ti Also Included Along With Higher-End SKUs In around two weeks, the 007 First Light will be available on Steam, but users have the option to pre-order the game now. It's currently listed at $69, and being a popular triple-A title, the game is already attracting significant attention from gamers. This is why NVIDIA has co",
-    "pub_date": "2026-05-13",
-    "source": "Wccftech",
-    "category": "芯片/市场"
-  },
-  {
     "title": "Musk mulled handing OpenAI to his children, Altman testifies",
     "link": "https://techcrunch.com/2026/05/12/musk-mulled-handing-openai-to-his-children-altman-testifies/",
     "description": "Altman said that Musk's focus on controlling the initial for-profit gave him pause because OpenAI was dedicated to keeping advanced AI out of the hands of a single person, and Altman, with his experience running the prominent startup accelerator Y Combinator, knew \"founders who had control usually did not give it up.\"",
@@ -6639,54 +6687,6 @@ window.techNewsItems = [
     "pub_date": "2026-05-12",
     "source": "The Verge AI",
     "category": "AI 产业"
-  },
-  {
-    "title": "A Comprehensive Study Of Integrating 2D Materials With CFET Architecture (SKKU, et al.)",
-    "link": "https://semiengineering.com/a-comprehensive-study-on-integrating-2d-materials-with-cfet-architecture-skku-et-al/",
-    "description": "A new technical paper, “Challenges and prospects of 2D electronics for future monolithic complementary field-effect transistors,” was published by researchers at Sungkyunkwan University, Hangyang University, Istituto Italiano di Tecnologia, Shanghai University, Jeonbuk National University, and Kyonggi University. Abstract “With planar complementary metal-oxide-semiconductor (CMOS) scaling nearing its physical limits, the transistor roadmap is transitioning toward monolithic... » read more The po",
-    "pub_date": "2026-05-12",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "ANN Framework for Thermal-Aware Modeling of GAAFETs (NYCU)",
-    "link": "https://semiengineering.com/ann-framework-for-thermal-aware-modeling-of-gaafets-nycu/",
-    "description": "A new technical paper, “A Device-Physics-Informed Artificial Neural Network Approach for Thermal-Aware I-V and C-V Modeling of GAA FETs,” was published by researchers at National Yang Ming Chiao Tung University. Abstract “This work introduces a device-physics-informed neural network framework for simultaneous modeling of thermal-aware I-V and C-V characteristics of gate-all-around (GAA) field-effect transistors (FETs). The... » read more The post ANN Framework for Thermal-Aware Modeling of GAAFE",
-    "pub_date": "2026-05-12",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "Silicon Photonics: Integrated Grating-Based Antennas for Optical Phased Arrays (MIT)",
-    "link": "https://semiengineering.com/silicon-photonics-integrated-grating-based-antennas-for-optical-phased-arrays-mit/",
-    "description": "A new technical paper, “Reduced-crosstalk antennas for grating-lobe-free and wide-field-of-view integrated optical phased arrays,” was published by researchers at MIT. Abstract “Integrated optical phased arrays (OPAs) have emerged as a promising technology for many applications due to their ability to dynamically control free-space optical beams in a compact and non-mechanical manner. However, these integrated OPAs... » read more The post Silicon Photonics: Integrated Grating-Based Antennas for ",
-    "pub_date": "2026-05-12",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "HW-Based Image Generation Using FTJs (SNU, Sungkyunkwan U., SK hynix et al.)",
-    "link": "https://semiengineering.com/hw-based-image-generation-using-ftjs-snu-sungkyunkwan-u-sk-hynix-et-al/",
-    "description": "A new technical paper, “CMOS-compatible ferroelectric tunnel junctions integrate stochastic sampling and deterministic computing for image generation,” was published by researchers at Seoul National University, Sungkyunkwan University, Hanyang University, Sogang University, and SK Hynix. Abstract “Recent progress in generative modeling has intensified the need for compact, energy-efficient hardware platforms. Yet, implementing image generation directly in... » read more The post HW-Based Image G",
-    "pub_date": "2026-05-12",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "Supporting Safety Requirements from RTL Exploration Through Implementation in Semiconductor Devices (Politecnico di Torino, Synopsys)",
-    "link": "https://semiengineering.com/supporting-safety-requirements-from-rtl-exploration-through-implementation-in-semiconductor-devices-politecnico-di-torino-synopsys/",
-    "description": "A new technical paper, “Early Functional Safety and PPA evaluation for faster digital design development,” was published by researchers at Politecnico di Torino and Synopsys. Abstract “The use of semiconductor devices in safety-critical applications is increasing in both volume and complexity. Applications in markets such as automotive, data centers, and aerospace have dependability requirements that... » read more The post Supporting Safety Requirements from RTL Exploration Through Implementati",
-    "pub_date": "2026-05-12",
-    "source": "SemiEngineering",
-    "category": "半导体"
-  },
-  {
-    "title": "What’s Really Needed For Advanced Test?",
-    "link": "https://semiengineering.com/whats-really-needed-for-advanced-test/",
-    "description": "The industry's aspirations for machine learning are running ahead of the data plumbing required to support them. The post What’s Really Needed For Advanced Test? appeared first on Semiconductor Engineering.",
-    "pub_date": "2026-05-12",
-    "source": "SemiEngineering",
-    "category": "半导体"
   },
   {
     "title": "Next-Gen Integrated Voltage Regulators with Multilayer Power Inductors and Ceramic Capacitors",
