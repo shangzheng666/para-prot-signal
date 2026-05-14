@@ -31,6 +31,12 @@ const fallbackItems = [
   },
 ];
 
+const STORAGE_KEYS = {
+  votes: "parasiteSignalVotes",
+  saved: "parasiteSignalSaved",
+  discussions: "parasiteSignalDiscussions",
+};
+
 const loadedResearchItems =
   Array.isArray(window.researchItems) && window.researchItems.length > 0
     ? window.researchItems
@@ -41,9 +47,10 @@ const state = {
   activeTag: "All",
   sort: "hot",
   query: "",
-  votes: JSON.parse(localStorage.getItem("parasiteSignalVotes") || "{}"),
-  saved: JSON.parse(localStorage.getItem("parasiteSignalSaved") || "{}"),
-  notes: JSON.parse(localStorage.getItem("parasiteSignalNotes") || "{}"),
+  savedOnly: false,
+  votes: readStoredObject(STORAGE_KEYS.votes),
+  saved: readStoredObject(STORAGE_KEYS.saved),
+  discussions: readStoredObject(STORAGE_KEYS.discussions),
 };
 
 const feedList = document.querySelector("#feedList");
@@ -53,6 +60,21 @@ const searchInput = document.querySelector("#feedSearch");
 const submitDialog = document.querySelector("#submitDialog");
 const submitForm = document.querySelector("#submitForm");
 const dataFreshness = document.querySelector("#dataFreshness");
+const feedStats = document.querySelector("#feedStats");
+const savedOnlyToggle = document.querySelector("#savedOnlyToggle");
+const exportSavedButton = document.querySelector("#exportSaved");
+const filterHint = document.querySelector("#filterHint");
+const filterHintText = document.querySelector("#filterHintText");
+const clearFiltersButton = document.querySelector("#clearFilters");
+
+function readStoredObject(key) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
 
 function normalizeItem(item) {
   const topics = Array.isArray(item.topics)
@@ -62,13 +84,13 @@ function normalizeItem(item) {
         .map((topic) => topic.trim())
         .filter(Boolean);
 
-  return {
+  const normalized = {
     id: item.id || `item-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     title: item.title || "Untitled",
     url: item.url || "#",
     source: item.source || "PubMed",
     tag: topics[0] || "Research",
-    topics,
+    topics: topics.length > 0 ? topics : ["Research"],
     type: item.type || "PubMed",
     editor: item.editor || item.source || "PubMed",
     ageHours: Number.isFinite(Number(item.ageHours)) ? Number(item.ageHours) : 999,
@@ -80,40 +102,66 @@ function normalizeItem(item) {
     doi: item.doi || "",
     why: item.why || item.abstract || "No abstract available.",
   };
+
+  return {
+    ...normalized,
+    stableId: getStableItemId(normalized),
+  };
+}
+
+function normalizeKey(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
+function normalizeUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw || raw === "#") return "";
+
+  try {
+    const parsed = new URL(raw, window.location.href);
+    parsed.hash = "";
+    return parsed.href.replace(/\/$/, "").toLowerCase();
+  } catch {
+    return raw.replace(/\/$/, "").toLowerCase();
+  }
+}
+
+function getStableItemId(item) {
+  const pmid = normalizeKey(item.pmid);
+  if (pmid) return `pmid:${pmid}`;
+
+  const doi = normalizeKey(item.doi);
+  if (doi) return `doi:${doi}`;
+
+  const url = normalizeUrl(item.url);
+  if (url) return `url:${url}`;
+
+  const titleDate = normalizeKey(`${item.title || "untitled"}|${item.pubDate || "undated"}`);
+  return `title:${titleDate || "untitled"}`;
+}
+
+function migrateSavedState() {
+  let changed = false;
+
+  state.items.forEach((item) => {
+    if (item.id && item.id !== item.stableId && state.saved[item.id]) {
+      state.saved[item.stableId] = true;
+      delete state.saved[item.id];
+      changed = true;
+    }
+  });
+
+  if (changed) persist();
 }
 
 function persist() {
-  localStorage.setItem("parasiteSignalVotes", JSON.stringify(state.votes));
-  localStorage.setItem("parasiteSignalSaved", JSON.stringify(state.saved));
-  localStorage.setItem("parasiteSignalNotes", JSON.stringify(state.notes));
-}
-
-function exportNotes() {
-  const lines = [];
-  for (const [id, note] of Object.entries(state.notes)) {
-    if (!note.trim()) continue;
-    const item = state.items.find((i) => i.id === id);
-    if (!item) continue;
-    lines.push(`## ${item.title}`);
-    lines.push(`- 来源: ${item.journal || item.source}`);
-    lines.push(`- 日期: ${item.pubDate}`);
-    lines.push(`- 链接: ${item.url}`);
-    if (item.pmid) lines.push(`- PMID: ${item.pmid}`);
-    lines.push(`\n### 我的笔记\n\n${note}`);
-    lines.push("\n---\n");
-  }
-
-  if (lines.length === 0) {
-    alert("还没有任何笔记可导出。");
-    return;
-  }
-
-  const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `research-notes-${new Date().toISOString().slice(0, 10)}.md`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  localStorage.setItem(STORAGE_KEYS.votes, JSON.stringify(state.votes));
+  localStorage.setItem(STORAGE_KEYS.saved, JSON.stringify(state.saved));
+  localStorage.setItem(STORAGE_KEYS.discussions, JSON.stringify(state.discussions));
 }
 
 function escapeHtml(value) {
@@ -125,14 +173,111 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function cleanMarkdownText(value) {
+  return String(value || "")
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function escapeMarkdownHeading(value) {
+  return cleanMarkdownText(value).replace(/^#+\s*/, "").replaceAll("|", "\\|") || "Untitled";
+}
+
+function escapeYamlString(value) {
+  return `"${cleanMarkdownText(value).replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"`;
+}
+
 function getScore(item) {
   return item.score + (state.votes[item.id] || 0);
+}
+
+function isItemSaved(item) {
+  return Boolean(state.saved[item.stableId] || (item.id && state.saved[item.id]));
+}
+
+function toggleSaved(item) {
+  if (isItemSaved(item)) {
+    delete state.saved[item.stableId];
+    if (item.id) delete state.saved[item.id];
+  } else {
+    state.saved[item.stableId] = true;
+    if (item.id && item.id !== item.stableId) delete state.saved[item.id];
+  }
+
+  persist();
+}
+
+function getSavedItems() {
+  return sortItems(state.items.filter(isItemSaved));
+}
+
+function getDiscussionItems(item) {
+  const comments = state.discussions[item.stableId];
+  return Array.isArray(comments) ? comments : [];
+}
+
+function getDiscussionCount(item) {
+  return getDiscussionItems(item).length;
+}
+
+function makeCommentId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return `comment-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function addDiscussionItem(item, body) {
+  const text = cleanMarkdownText(body);
+  if (!text) return;
+
+  const now = new Date().toISOString();
+  const comments = getDiscussionItems(item);
+  state.discussions[item.stableId] = [
+    ...comments,
+    {
+      id: makeCommentId(),
+      body: text,
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+  persist();
+}
+
+function editDiscussionItem(item, commentId, body) {
+  const text = cleanMarkdownText(body);
+  if (!text) return;
+
+  const comments = getDiscussionItems(item);
+  state.discussions[item.stableId] = comments.map((comment) =>
+    comment.id === commentId
+      ? { ...comment, body: text, updatedAt: new Date().toISOString() }
+      : comment,
+  );
+  persist();
+}
+
+function deleteDiscussionItem(item, commentId) {
+  const comments = getDiscussionItems(item).filter((comment) => comment.id !== commentId);
+  if (comments.length > 0) {
+    state.discussions[item.stableId] = comments;
+  } else {
+    delete state.discussions[item.stableId];
+  }
+  persist();
 }
 
 function formatAge(item) {
   if (item.ageHours < 24) return `${Math.max(0, Math.round(item.ageHours))}h`;
   if (item.ageHours < 24 * 14) return `${Math.round(item.ageHours / 24)}d`;
   return item.pubDate || "unknown date";
+}
+
+function formatLocalDate(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function getTags() {
@@ -150,35 +295,50 @@ function getTags() {
   return Object.entries(counts);
 }
 
+function matchesQuery(item, query) {
+  if (!query) return true;
+  const comments = getDiscussionItems(item).map((comment) => comment.body);
+
+  return [
+    item.title,
+    item.source,
+    item.tag,
+    item.topics.join(" "),
+    item.type,
+    item.why,
+    item.journal,
+    item.pubDate,
+    item.pmid,
+    item.doi,
+    item.authors.join(" "),
+    comments.join(" "),
+  ]
+    .join(" ")
+    .toLowerCase()
+    .includes(query);
+}
+
+function sortItems(items) {
+  return [...items].sort((a, b) => {
+    if (state.sort === "recent") return a.ageHours - b.ageHours;
+    if (state.sort === "top") return getScore(b) - getScore(a);
+    return getScore(b) / Math.sqrt(b.ageHours + 2) - getScore(a) / Math.sqrt(a.ageHours + 2);
+  });
+}
+
 function filteredItems() {
   const query = state.query.trim().toLowerCase();
 
-  return state.items
-    .filter((item) => state.activeTag === "All" || item.topics.includes(state.activeTag))
-    .filter((item) => {
-      if (!query) return true;
-      return [
-        item.title,
-        item.source,
-        item.tag,
-        item.topics.join(" "),
-        item.type,
-        item.why,
-        item.journal,
-        item.pubDate,
-        item.pmid,
-        item.doi,
-        item.authors.join(" "),
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(query);
-    })
-    .sort((a, b) => {
-      if (state.sort === "recent") return a.ageHours - b.ageHours;
-      if (state.sort === "top") return getScore(b) - getScore(a);
-      return getScore(b) / Math.sqrt(b.ageHours + 2) - getScore(a) / Math.sqrt(a.ageHours + 2);
-    });
+  return sortItems(
+    state.items
+      .filter((item) => state.activeTag === "All" || item.topics.includes(state.activeTag))
+      .filter((item) => !state.savedOnly || isItemSaved(item))
+      .filter((item) => matchesQuery(item, query)),
+  );
+}
+
+function hasActiveFilters() {
+  return state.activeTag !== "All" || Boolean(state.query.trim()) || state.savedOnly;
 }
 
 function renderTags() {
@@ -208,15 +368,105 @@ function renderFreshness() {
   dataFreshness.textContent = `数据更新：${updated} · ${count} 条文献`;
 }
 
+function renderControls(items, savedCount) {
+  savedOnlyToggle.checked = state.savedOnly;
+  const discussionCount = state.items.reduce((total, item) => total + getDiscussionCount(item), 0);
+
+  if (state.savedOnly) {
+    feedStats.textContent = `显示 ${items.length}/${savedCount} 篇收藏 · 讨论 ${discussionCount} 条`;
+  } else {
+    feedStats.textContent = `显示 ${items.length}/${state.items.length} 篇 · 收藏 ${savedCount} 篇 · 讨论 ${discussionCount} 条`;
+  }
+
+  exportSavedButton.disabled = savedCount === 0;
+  exportSavedButton.textContent =
+    savedCount > 0 ? `导出收藏 ${savedCount} 篇` : "暂无收藏可导出";
+}
+
+function renderFilterHint(items, savedCount) {
+  if (items.length > 0 || !hasActiveFilters()) {
+    filterHint.hidden = true;
+    return;
+  }
+
+  filterHint.hidden = false;
+  if (state.savedOnly && savedCount > 0) {
+    filterHintText.textContent = "当前筛选条件下无收藏，可清除筛选。";
+  } else if (state.savedOnly) {
+    filterHintText.textContent = "还没有收藏文献，点击星标后可导出 Markdown。";
+  } else {
+    filterHintText.textContent = "没有匹配的文献，可清除筛选。";
+  }
+}
+
+function formatCommentTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString();
+}
+
+function renderDiscussionThread(item) {
+  const comments = getDiscussionItems(item);
+  const commentHtml = comments
+    .map(
+      (comment) => `
+        <div class="comment-item">
+          <div class="comment-avatar" aria-hidden="true">你</div>
+          <div class="comment-body">
+            <div class="comment-meta">
+              <strong>本地观点</strong>
+              <span>${escapeHtml(formatCommentTime(comment.updatedAt || comment.createdAt))}</span>
+            </div>
+            <p>${escapeHtml(comment.body)}</p>
+            <div class="comment-actions">
+              <button class="link-button comment-edit" type="button" data-item-id="${escapeHtml(item.stableId)}" data-comment-id="${escapeHtml(comment.id)}">编辑</button>
+              <button class="link-button comment-delete" type="button" data-item-id="${escapeHtml(item.stableId)}" data-comment-id="${escapeHtml(comment.id)}">删除</button>
+            </div>
+          </div>
+        </div>
+      `,
+    )
+    .join("");
+
+  return `
+    <section class="thread-panel" aria-label="本地讨论">
+      <div class="thread-head">
+        <span>讨论 ${comments.length}</span>
+        <span>${comments.length > 0 ? "本地保存" : "等待观点"}</span>
+      </div>
+      <div class="comment-list">
+        ${commentHtml || '<p class="thread-empty">还没有观点。</p>'}
+      </div>
+      <form class="comment-form" data-item-id="${escapeHtml(item.stableId)}">
+        <label class="sr-only" for="comment-${escapeHtml(item.stableId)}">写观点</label>
+        <textarea id="comment-${escapeHtml(item.stableId)}" name="comment" rows="2" maxlength="800" placeholder="写下判断、疑问或后续追踪意见"></textarea>
+        <button class="button comment-submit" type="submit">发表</button>
+      </form>
+    </section>
+  `;
+}
+
 function renderFeed() {
   const items = filteredItems();
+  const savedCount = getSavedItems().length;
+  renderControls(items, savedCount);
+  renderFilterHint(items, savedCount);
+
   emptyState.hidden = items.length > 0;
+  if (!emptyState.hidden) {
+    emptyState.textContent =
+      state.savedOnly && savedCount === 0
+        ? "还没有收藏文献。"
+        : "没有匹配的文献。";
+  }
 
   feedList.innerHTML = items
     .map((item, index) => {
       const score = getScore(item);
-      const saved = state.saved[item.id] ? " active" : "";
+      const saved = isItemSaved(item) ? " active" : "";
       const voted = state.votes[item.id] ? " active" : "";
+      const discussionCount = getDiscussionCount(item);
       const primaryTopic = item.topics[0] || item.tag;
       const topicLabel = item.topics.join(" / ");
       const tone =
@@ -232,15 +482,11 @@ function renderFeed() {
         item.journal ? `<span>${escapeHtml(item.journal)}</span>` : "",
         authors ? `<span>${escapeHtml(authors)}</span>` : "",
         item.pmid ? `<span>PMID ${escapeHtml(item.pmid)}</span>` : "",
+        `<span>${discussionCount} 条讨论</span>`,
         `<span>${escapeHtml(formatAge(item))}</span>`,
       ]
         .filter(Boolean)
         .join("");
-
-      const note = state.notes[item.id] || "";
-      const hasNote = note.trim().length > 0;
-      const noteActive = hasNote ? " active" : "";
-      const noteLabel = hasNote ? "查看笔记" : "添加笔记";
 
       return `
         <li class="feed-item">
@@ -251,24 +497,19 @@ function renderFeed() {
           </div>
 
           <article class="item-main">
+            <div class="item-topline">
+              <span class="badge${tone}">${escapeHtml(topicLabel)}</span>
+              <span>${escapeHtml(item.source)}</span>
+            </div>
             <h3 class="item-heading">
               <a class="item-title" href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.title)}</a>
-              <span class="source">${escapeHtml(item.source)}</span>
             </h3>
             <p class="why">${escapeHtml(item.why)}</p>
             <div class="meta">${meta}</div>
-            <button class="note-btn${noteActive}" type="button" data-id="${escapeHtml(item.id)}" title="${noteLabel}">✎ ${noteLabel}</button>
+            ${renderDiscussionThread(item)}
           </article>
 
-          <button class="icon-button save-button${saved}" type="button" title="收藏" aria-label="收藏 ${escapeHtml(item.title)}" data-id="${escapeHtml(item.id)}">★</button>
-
-          <div class="note-panel" hidden data-id="${escapeHtml(item.id)}">
-            <textarea class="note-textarea" placeholder="记录你的想法、思考或笔记...">${escapeHtml(note)}</textarea>
-            <div class="note-panel-actions">
-              <button class="button note-save-btn" type="button" data-id="${escapeHtml(item.id)}">保存笔记</button>
-              <button class="button note-close-btn" type="button" data-id="${escapeHtml(item.id)}">收起</button>
-            </div>
-          </div>
+          <button class="icon-button save-button${saved}" type="button" title="收藏到日报导出" aria-label="收藏到日报导出 ${escapeHtml(item.title)}" data-id="${escapeHtml(item.stableId)}">★</button>
         </li>
       `;
     })
@@ -279,6 +520,120 @@ function render() {
   renderFreshness();
   renderTags();
   renderFeed();
+}
+
+function findItemBySaveId(id) {
+  return state.items.find((item) => item.stableId === id || item.id === id);
+}
+
+function groupByTopic(items) {
+  const groups = new Map();
+  items.forEach((item) => {
+    const topic = item.topics[0] || item.tag || "Research";
+    if (!groups.has(topic)) groups.set(topic, []);
+    groups.get(topic).push(item);
+  });
+
+  return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
+}
+
+function tagToYaml(value) {
+  return (
+    normalizeKey(value)
+      .replace(/[^a-z0-9\u4e00-\u9fff]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "research"
+  );
+}
+
+function buildMarkdown(items) {
+  const exportDate = formatLocalDate();
+  const exportedAt = new Date().toLocaleString();
+  const dataUpdated = window.researchLastUpdated || "unknown";
+  const yamlTags = [
+    "parasite-signal",
+    "literature",
+    ...new Set(items.flatMap((item) => item.topics.map(tagToYaml))),
+  ];
+
+  const lines = [
+    "---",
+    `title: ${escapeYamlString("Parasite Signal Daily Research Notes")}`,
+    `date: ${exportDate}`,
+    "source: ai-feed-page",
+    "type: literature-digest",
+    `count: ${items.length}`,
+    "tags:",
+    ...yamlTags.map((tag) => `  - ${tag}`),
+    "---",
+    "",
+    "# Parasite Signal Daily Research Notes",
+    "",
+    `- Data updated: ${cleanMarkdownText(dataUpdated) || "unknown"}`,
+    `- Exported at: ${cleanMarkdownText(exportedAt)}`,
+    `- Saved items: ${items.length}`,
+    "",
+  ];
+
+  groupByTopic(items).forEach(([topic, groupItems]) => {
+    lines.push(`## ${escapeMarkdownHeading(topic)}`, "");
+
+    groupItems.forEach((item) => {
+      const topicLabel = item.topics.join(" / ") || item.tag || "Research";
+      const urlLabel = item.pmid ? "PubMed" : "URL";
+      const comments = getDiscussionItems(item);
+      lines.push(
+        `### ${escapeMarkdownHeading(item.title)}`,
+        "",
+        `- PMID: ${cleanMarkdownText(item.pmid) || "not available"}`,
+        `- DOI: ${cleanMarkdownText(item.doi) || "not available"}`,
+        `- Journal: ${cleanMarkdownText(item.journal) || "not available"}`,
+        `- Date: ${cleanMarkdownText(item.pubDate) || "not available"}`,
+        `- Authors: ${cleanMarkdownText(item.authors.join(", ")) || "not available"}`,
+        `- ${urlLabel}: ${cleanMarkdownText(item.url) || "not available"}`,
+        `- Topic: ${cleanMarkdownText(topicLabel)}`,
+        "- Why it matters: 待补充",
+        `- Abstract excerpt: ${cleanMarkdownText(item.why) || "not available"}`,
+        "",
+        "Notes:",
+        "",
+      );
+
+      if (comments.length > 0) {
+        lines.push("Local discussion:", "");
+        comments.forEach((comment) => {
+          lines.push(`- ${cleanMarkdownText(comment.body)}`);
+        });
+        lines.push("");
+      }
+    });
+  });
+
+  return `${lines.join("\n").trim()}\n`;
+}
+
+function downloadMarkdown() {
+  const items = getSavedItems();
+  if (items.length === 0) return;
+
+  const date = formatLocalDate();
+  const filename = `parasite-signal-saved-${date}-${items.length}-items.md`;
+  const blob = new Blob([buildMarkdown(items)], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function clearFilters() {
+  state.activeTag = "All";
+  state.query = "";
+  state.savedOnly = false;
+  searchInput.value = "";
+  render();
 }
 
 document.addEventListener("click", (event) => {
@@ -310,50 +665,64 @@ document.addEventListener("click", (event) => {
 
   const saveButton = event.target.closest(".save-button");
   if (saveButton) {
-    const id = saveButton.dataset.id;
-    state.saved[id] = !state.saved[id];
-    persist();
+    const item = findItemBySaveId(saveButton.dataset.id);
+    if (!item) return;
+    toggleSaved(item);
+    render();
+    return;
+  }
+
+  const editButton = event.target.closest(".comment-edit");
+  if (editButton) {
+    const item = findItemBySaveId(editButton.dataset.itemId);
+    if (!item) return;
+    const comment = getDiscussionItems(item).find(
+      (entry) => entry.id === editButton.dataset.commentId,
+    );
+    if (!comment) return;
+    const nextBody = window.prompt("编辑观点", comment.body);
+    if (nextBody === null) return;
+    editDiscussionItem(item, comment.id, nextBody);
     renderFeed();
     return;
   }
 
-  const noteBtn = event.target.closest(".note-btn");
-  if (noteBtn) {
-    const id = noteBtn.dataset.id;
-    const panel = feedList.querySelector(`.note-panel[data-id="${id}"]`);
-    if (panel) {
-      panel.hidden = !panel.hidden;
-      if (!panel.hidden) panel.querySelector("textarea").focus();
-    }
-    return;
+  const deleteButton = event.target.closest(".comment-delete");
+  if (deleteButton) {
+    const item = findItemBySaveId(deleteButton.dataset.itemId);
+    if (!item) return;
+    if (!window.confirm("删除这条观点？")) return;
+    deleteDiscussionItem(item, deleteButton.dataset.commentId);
+    renderFeed();
   }
+});
 
-  const noteSaveBtn = event.target.closest(".note-save-btn");
-  if (noteSaveBtn) {
-    const id = noteSaveBtn.dataset.id;
-    const panel = feedList.querySelector(`.note-panel[data-id="${id}"]`);
-    const noteText = panel.querySelector("textarea").value;
-    state.notes[id] = noteText;
-    persist();
-    const btn = feedList.querySelector(`.note-btn[data-id="${id}"]`);
-    const filled = noteText.trim().length > 0;
-    btn.classList.toggle("active", filled);
-    btn.textContent = `✎ ${filled ? "查看笔记" : "添加笔记"}`;
-    panel.hidden = true;
-    return;
-  }
+document.addEventListener("submit", (event) => {
+  const form = event.target.closest(".comment-form");
+  if (!form) return;
 
-  const noteCloseBtn = event.target.closest(".note-close-btn");
-  if (noteCloseBtn) {
-    const id = noteCloseBtn.dataset.id;
-    feedList.querySelector(`.note-panel[data-id="${id}"]`).hidden = true;
-  }
+  event.preventDefault();
+  const item = findItemBySaveId(form.dataset.itemId);
+  const textarea = form.querySelector("textarea");
+  if (!item || !textarea) return;
+
+  addDiscussionItem(item, textarea.value);
+  textarea.value = "";
+  render();
 });
 
 searchInput.addEventListener("input", (event) => {
   state.query = event.target.value;
   renderFeed();
 });
+
+savedOnlyToggle.addEventListener("change", (event) => {
+  state.savedOnly = event.target.checked;
+  renderFeed();
+});
+
+exportSavedButton.addEventListener("click", downloadMarkdown);
+clearFiltersButton.addEventListener("click", clearFilters);
 
 document.querySelector("#openSubmit").addEventListener("click", () => {
   submitDialog.showModal();
@@ -370,29 +739,33 @@ submitForm.addEventListener("submit", (event) => {
 
   if (!title || !url) return;
 
-  state.items.unshift({
-    id: `submitted-${Date.now()}`,
-    title,
-    url,
-    source: new URL(url).hostname.replace(/^www\./, ""),
-    tag,
-    topics: [tag],
-    type: "submitted",
-    editor: "You",
-    ageHours: 0,
-    score: 1,
-    journal: "",
-    pubDate: new Date().toISOString().slice(0, 10),
-    authors: [],
-    pmid: "",
-    doi: "",
-    why: "手动添加的条目。",
-  });
+  state.items.unshift(
+    normalizeItem({
+      id: `submitted-${Date.now()}`,
+      title,
+      url,
+      source: new URL(url).hostname.replace(/^www\./, ""),
+      tag,
+      topics: [tag],
+      type: "submitted",
+      editor: "You",
+      ageHours: 0,
+      score: 1,
+      journal: "",
+      pubDate: formatLocalDate(),
+      authors: [],
+      pmid: "",
+      doi: "",
+      why: "手动添加的条目。",
+    }),
+  );
 
   state.activeTag = "All";
+  state.savedOnly = false;
   submitForm.reset();
   submitDialog.close();
   render();
 });
 
+migrateSavedState();
 render();

@@ -4,15 +4,15 @@
   "topics": [
     {
       "tag": "Toxoplasma",
-      "query": "(Toxoplasma gondii[Title/Abstract] OR toxoplasmosis[Title/Abstract])"
+      "query": "(Toxoplasma gondii[Title/Abstract] OR toxoplasmosis[Title/Abstract] OR \"Toxoplasma\"[MeSH] OR \"Toxoplasmosis\"[MeSH])"
     },
     {
       "tag": "Plasmodium",
-      "query": "(Plasmodium[Title/Abstract] OR Plasmodium falciparum[Title/Abstract] OR Plasmodium vivax[Title/Abstract])"
+      "query": "(Plasmodium[Title/Abstract] OR Plasmodium falciparum[Title/Abstract] OR Plasmodium vivax[Title/Abstract] OR \"Plasmodium\"[MeSH])"
     },
     {
       "tag": "Malaria parasite",
-      "query": "(malaria parasite[Title/Abstract] OR malaria parasites[Title/Abstract])"
+      "query": "(malaria parasite[Title/Abstract] OR malaria parasites[Title/Abstract] OR \"Malaria/parasitology\"[MeSH])"
     }
   ]
 }

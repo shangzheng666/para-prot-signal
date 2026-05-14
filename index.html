@@ -21,6 +21,7 @@
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="#feed">日报</a>
         <a href="#tags">主题</a>
+        <a href="#feed">讨论</a>
         <a href="#office">来源</a>
         <a href="#about">关于</a>
       </nav>
@@ -41,7 +42,7 @@
       <section class="masthead" id="about">
         <div>
           <p class="eyebrow">Toxoplasma · Plasmodium · Malaria</p>
-          <h1>The feed</h1>
+          <h1>Research board</h1>
           <p class="lede">每日追踪弓形虫、疟原虫与疟疾寄生虫研究。</p>
           <p class="statusline" id="dataFreshness"></p>
         </div>
@@ -59,13 +60,29 @@
 
         <section class="feed-column" id="feed">
           <div class="feed-toolbar">
-            <h2>今日文献</h2>
-            <div class="segmented" aria-label="Feed ranking">
-              <button class="segment active" type="button" data-sort="hot">重点</button>
-              <button class="segment" type="button" data-sort="recent">最新</button>
-              <button class="segment" type="button" data-sort="top">热度</button>
+            <div class="feed-summary">
+              <h2>今日文献</h2>
+              <p class="feed-stats" id="feedStats"></p>
+            </div>
+            <div class="feed-actions">
+              <label class="toggle-control" for="savedOnlyToggle">
+                <input id="savedOnlyToggle" type="checkbox" />
+                <span>只看收藏</span>
+              </label>
+              <div class="segmented" aria-label="Feed ranking">
+                <button class="segment active" type="button" data-sort="hot">重点</button>
+                <button class="segment" type="button" data-sort="recent">最新</button>
+                <button class="segment" type="button" data-sort="top">热度</button>
+              </div>
+              <button class="button export-button" id="exportSaved" type="button">
+                暂无收藏可导出
+              </button>
             </div>
           </div>
+          <p class="filter-hint" id="filterHint" hidden>
+            <span id="filterHintText"></span>
+            <button class="link-button" id="clearFilters" type="button">清除筛选</button>
+          </p>
 
           <ol class="feed-list" id="feedList"></ol>
           <p class="empty-state" id="emptyState" hidden>没有匹配的文献。</p>
