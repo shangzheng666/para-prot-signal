@@ -1,0 +1,68 @@
+name: Fetch PubMed Research
+
+on:
+  schedule:
+    - cron: "0 0 * * *"       # UTC 00:00 = 北京时间 08:00
+  workflow_dispatch:            # 允许手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch articles
+        env:
+          NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
+        run: python scripts/fetch_research.py --days 7
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add research-data.js research-data.md
+          if git diff --cached --quiet; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Auto-update research data $(date -u +%Y-%m-%d)"
+            git push
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Count articles
+        if: steps.commit.outputs.updated == 'true'
+        id: count
+        run: |
+          COUNT=$(python -c "
+          import json, re
+          text = open('research-data.js', encoding='utf-8').read()
+          m = re.search(r'window\.researchItems\s*=\s*(\[.*\])', text, re.DOTALL)
+          print(len(json.loads(m.group(1))) if m else 0)
+          ")
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Send email notification
+        if: steps.commit.outputs.updated == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.qq.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.QQ_EMAIL }}
+          password: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
+          subject: "para.prot.signal — ${{ steps.count.outputs.count }} 篇新文献"
+          to: 812862383@qq.com
+          from: ${{ secrets.QQ_EMAIL }}
+          body: |
+            PubMed 文献日报已更新，共 ${{ steps.count.outputs.count }} 篇文章。
+
+            在线查看：https://shzzzayys.github.io/para-prot-signal/
+            Markdown 报告：https://github.com/${{ github.repository }}/blob/main/research-data.md
