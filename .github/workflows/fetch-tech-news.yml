@@ -30,10 +30,11 @@ jobs:
             git push
           fi
 
-      - name: Build & send daily briefing via PushPlus
+      - name: Build & send daily briefing via Gmail
         run: |
           python -c "
-          import json, re, os, urllib.request, urllib.parse
+          import json, re, os, smtplib
+          from email.mime.text import MIMEText
 
           # ── PubMed stats ──
           pub_count = 0
@@ -48,14 +49,14 @@ jobs:
                   for it in items:
                       for t in it.get('topics', []):
                           tc[t] = tc.get(t, 0) + 1
-                  pub_topics = '、'.join(f'{t} {n} 篇' for t, n in tc.items())
+                  pub_topics = ', '.join(f'{t} {n} 篇' for t, n in tc.items())
           except Exception:
               pass
 
           # ── Tech news stats ──
           tech_count = 0
           tech_cats = ''
-          highlights_md = ''
+          highlights = ''
           try:
               text = open('tech-news-data.js', encoding='utf-8').read()
               m = re.search(r'window\.techNewsItems\s*=\s*(\[.*\])', text, re.DOTALL)
@@ -65,8 +66,7 @@ jobs:
                   cc = {}
                   for it in items:
                       cc[it.get('category', '')] = cc.get(it.get('category', ''), 0) + 1
-                  tech_cats = '、'.join(f'{c} {n} 条' for c, n in cc.items())
-                  # Pick up to 5 highlights (non-ArXiv first)
+                  tech_cats = ', '.join(f'{c} {n} 条' for c, n in cc.items())
                   non_arxiv = [it for it in items if 'ArXiv' not in it.get('source', '')]
                   picks = non_arxiv[:5] if len(non_arxiv) >= 5 else non_arxiv + items[:5 - len(non_arxiv)]
                   seen = set()
@@ -74,8 +74,9 @@ jobs:
                   for it in picks:
                       if it['title'] not in seen:
                           seen.add(it['title'])
-                          lines.append(f'- **[{it.get(\"source\",\"\")}]** [{it[\"title\"]}]({it.get(\"link\",\"\")})')
-                  highlights_md = chr(10).join(lines)
+                          lines.append(f'  - [{it.get(\"source\",\"\")}] {it[\"title\"]}')
+                          lines.append(f'    {it.get(\"link\",\"\")}')
+                  highlights = chr(10).join(lines)
           except Exception:
               pass
 
@@ -84,57 +85,45 @@ jobs:
               print('No items, skip notification.')
               raise SystemExit(0)
 
-          title = f'每日科研简报 — 文献 {pub_count} 篇 · 资讯 {tech_count} 条'
+          subject = f'每日科研简报 — 文献 {pub_count} 篇 / 资讯 {tech_count} 条'
 
-          parts = [f'今日共收录 **{total}** 条内容。', '']
+          body_parts = [f'今日共收录 {total} 条内容。', '']
 
           if pub_count:
-              parts.append(f'## 📚 PubMed 文献')
-              parts.append(f'{pub_count} 篇（{pub_topics}）')
-              parts.append(f'')
-              parts.append(f'[在线查看 →](https://shzzzayys.github.io/para-prot-signal/)')
-              parts.append('')
+              body_parts.append(f'📚 PubMed 文献：{pub_count} 篇（{pub_topics}）')
+              body_parts.append(f'   在线查看: https://shzzzayys.github.io/para-prot-signal/')
+              body_parts.append('')
 
           if tech_count:
-              parts.append(f'## 🔬 AI & 半导体资讯')
-              parts.append(f'{tech_count} 条（{tech_cats}）')
-              parts.append(f'')
-              parts.append(f'[在线查看 →](https://shzzzayys.github.io/para-prot-signal/tech-news.html)')
-              parts.append('')
-              if highlights_md:
-                  parts.append('## 📌 今日要闻')
-                  parts.append(highlights_md)
-                  parts.append('')
+              body_parts.append(f'🔬 AI & 半导体资讯：{tech_count} 条（{tech_cats}）')
+              body_parts.append(f'   在线查看: https://shzzzayys.github.io/para-prot-signal/tech-news.html')
+              body_parts.append('')
+              if highlights:
+                  body_parts.append('📌 今日要闻：')
+                  body_parts.append(highlights)
+                  body_parts.append('')
 
-          parts.append('---')
-          parts.append('*para.prot.signal · 自动简报*')
-          content = chr(10).join(parts)
+          body_parts.append('-- para.prot.signal 自动简报')
+          body = chr(10).join(body_parts)
 
-          # ── Send via PushPlus ──
-          token = os.environ.get('PUSHPLUS_TOKEN', '')
-          if not token:
-              print('PUSHPLUS_TOKEN not set, skip.')
+          # ── Send via Gmail SMTP ──
+          addr = os.environ.get('GMAIL_ADDRESS', '')
+          password = os.environ.get('GMAIL_APP_PASSWORD', '')
+          if not addr or not password:
+              print('Gmail credentials not set, skip.')
               raise SystemExit(0)
 
-          payload = json.dumps({
-              'token': token,
-              'title': title,
-              'content': content,
-              'template': 'markdown',
-          }).encode('utf-8')
+          msg = MIMEText(body, 'plain', 'utf-8')
+          msg['Subject'] = subject
+          msg['From'] = addr
+          msg['To'] = addr
 
-          req = urllib.request.Request(
-              'http://www.pushplus.plus/send',
-              data=payload,
-              headers={'Content-Type': 'application/json'},
-          )
-          with urllib.request.urlopen(req, timeout=15) as resp:
-              result = json.loads(resp.read().decode('utf-8'))
-              print(f'PushPlus response: {result}')
-              if result.get('code') != 200:
-                  print(f'Warning: PushPlus returned code {result.get(\"code\")}')
-                  raise SystemExit(1)
-          print('Briefing sent successfully.')
+          with smtplib.SMTP('smtp.gmail.com', 587) as s:
+              s.starttls()
+              s.login(addr, password)
+              s.send_message(msg)
+          print(f'Briefing sent to {addr}')
           "
         env:
-          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
