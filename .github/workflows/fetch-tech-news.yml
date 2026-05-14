@@ -30,11 +30,10 @@ jobs:
             git push
           fi
 
-      - name: Build daily briefing
-        id: briefing
+      - name: Build & send daily briefing via PushPlus
         run: |
           python -c "
-          import json, re, os
+          import json, re, os, urllib.request, urllib.parse
 
           # ── PubMed stats ──
           pub_count = 0
@@ -56,7 +55,7 @@ jobs:
           # ── Tech news stats ──
           tech_count = 0
           tech_cats = ''
-          tech_highlights = ''
+          highlights_md = ''
           try:
               text = open('tech-news-data.js', encoding='utf-8').read()
               m = re.search(r'window\.techNewsItems\s*=\s*(\[.*\])', text, re.DOTALL)
@@ -67,7 +66,7 @@ jobs:
                   for it in items:
                       cc[it.get('category', '')] = cc.get(it.get('category', ''), 0) + 1
                   tech_cats = '、'.join(f'{c} {n} 条' for c, n in cc.items())
-                  # Pick up to 5 highlights (non-ArXiv first, then ArXiv)
+                  # Pick up to 5 highlights (non-ArXiv first)
                   non_arxiv = [it for it in items if 'ArXiv' not in it.get('source', '')]
                   picks = non_arxiv[:5] if len(non_arxiv) >= 5 else non_arxiv + items[:5 - len(non_arxiv)]
                   seen = set()
@@ -75,52 +74,67 @@ jobs:
                   for it in picks:
                       if it['title'] not in seen:
                           seen.add(it['title'])
-                          lines.append(f\"  - [{it.get('source','')}] {it['title']}\")
-                  tech_highlights = chr(10).join(lines)
+                          lines.append(f'- **[{it.get(\"source\",\"\")}]** [{it[\"title\"]}]({it.get(\"link\",\"\")})')
+                  highlights_md = chr(10).join(lines)
           except Exception:
               pass
 
           total = pub_count + tech_count
-          subject = f'每日科研简报 — 文献 {pub_count} 篇 · 资讯 {tech_count} 条'
+          if total == 0:
+              print('No items, skip notification.')
+              raise SystemExit(0)
 
-          body_parts = [f'今日共收录 {total} 条内容。', '']
+          title = f'每日科研简报 — 文献 {pub_count} 篇 · 资讯 {tech_count} 条'
+
+          parts = [f'今日共收录 **{total}** 条内容。', '']
 
           if pub_count:
-              body_parts.append(f'📚 PubMed 文献：{pub_count} 篇（{pub_topics}）')
-              body_parts.append(f'   在线查看 → https://shzzzayys.github.io/para-prot-signal/')
-              body_parts.append('')
+              parts.append(f'## 📚 PubMed 文献')
+              parts.append(f'{pub_count} 篇（{pub_topics}）')
+              parts.append(f'')
+              parts.append(f'[在线查看 →](https://shzzzayys.github.io/para-prot-signal/)')
+              parts.append('')
 
           if tech_count:
-              body_parts.append(f'🔬 AI & 半导体资讯：{tech_count} 条（{tech_cats}）')
-              body_parts.append(f'   在线查看 → https://shzzzayys.github.io/para-prot-signal/tech-news.html')
-              body_parts.append('')
-              if tech_highlights:
-                  body_parts.append('📌 今日要闻：')
-                  body_parts.append(tech_highlights)
-                  body_parts.append('')
+              parts.append(f'## 🔬 AI & 半导体资讯')
+              parts.append(f'{tech_count} 条（{tech_cats}）')
+              parts.append(f'')
+              parts.append(f'[在线查看 →](https://shzzzayys.github.io/para-prot-signal/tech-news.html)')
+              parts.append('')
+              if highlights_md:
+                  parts.append('## 📌 今日要闻')
+                  parts.append(highlights_md)
+                  parts.append('')
 
-          body_parts.append('—— para.prot.signal · 自动简报')
-          body = chr(10).join(body_parts)
+          parts.append('---')
+          parts.append('*para.prot.signal · 自动简报*')
+          content = chr(10).join(parts)
 
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f'subject={subject}\n')
-              # multiline body
-              import uuid
-              delim = uuid.uuid4().hex
-              f.write(f'body<<{delim}\n{body}\n{delim}\n')
-              f.write(f'total={total}\n')
+          # ── Send via PushPlus ──
+          token = os.environ.get('PUSHPLUS_TOKEN', '')
+          if not token:
+              print('PUSHPLUS_TOKEN not set, skip.')
+              raise SystemExit(0)
+
+          payload = json.dumps({
+              'token': token,
+              'title': title,
+              'content': content,
+              'template': 'markdown',
+          }).encode('utf-8')
+
+          req = urllib.request.Request(
+              'http://www.pushplus.plus/send',
+              data=payload,
+              headers={'Content-Type': 'application/json'},
+          )
+          with urllib.request.urlopen(req, timeout=15) as resp:
+              result = json.loads(resp.read().decode('utf-8'))
+              print(f'PushPlus response: {result}')
+              if result.get('code') != 200:
+                  print(f'Warning: PushPlus returned code {result.get(\"code\")}')
+                  raise SystemExit(1)
+          print('Briefing sent successfully.')
           "
-
-      - name: Send daily briefing email
-        if: steps.briefing.outputs.total != '0'
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.qq.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.QQ_EMAIL }}
-          password: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
-          subject: ${{ steps.briefing.outputs.subject }}
-          to: 812862383@qq.com
-          "from": ${{ secrets.QQ_EMAIL }}
-          body: ${{ steps.briefing.outputs.body }}
+        env:
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
