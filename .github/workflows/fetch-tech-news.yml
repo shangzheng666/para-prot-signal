@@ -122,5 +122,5 @@ jobs:
           password: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
           subject: ${{ steps.briefing.outputs.subject }}
           to: 812862383@qq.com
-          from: ${{ secrets.QQ_EMAIL }}
+          "from": ${{ secrets.QQ_EMAIL }}
           body: ${{ steps.briefing.outputs.body }}
