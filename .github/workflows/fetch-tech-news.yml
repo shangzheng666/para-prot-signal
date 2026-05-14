@@ -1,7 +1,7 @@
 name: Fetch Tech News
 on:
   schedule:
-    - cron: "30 0 * * *"   # UTC 00:30 = 北京时间 08:30
+    - cron: "30 0 * * *"   # UTC 00:30 = 北京时间 08:30，在 PubMed 之后运行
   workflow_dispatch:
 
 permissions:
@@ -29,3 +29,98 @@ jobs:
             git commit -m "Auto-update tech news $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      - name: Build daily briefing
+        id: briefing
+        run: |
+          python -c "
+          import json, re, os
+
+          # ── PubMed stats ──
+          pub_count = 0
+          pub_topics = ''
+          try:
+              text = open('research-data.js', encoding='utf-8').read()
+              m = re.search(r'window\.researchItems\s*=\s*(\[.*\])', text, re.DOTALL)
+              if m:
+                  items = json.loads(m.group(1))
+                  pub_count = len(items)
+                  tc = {}
+                  for it in items:
+                      for t in it.get('topics', []):
+                          tc[t] = tc.get(t, 0) + 1
+                  pub_topics = '、'.join(f'{t} {n} 篇' for t, n in tc.items())
+          except Exception:
+              pass
+
+          # ── Tech news stats ──
+          tech_count = 0
+          tech_cats = ''
+          tech_highlights = ''
+          try:
+              text = open('tech-news-data.js', encoding='utf-8').read()
+              m = re.search(r'window\.techNewsItems\s*=\s*(\[.*\])', text, re.DOTALL)
+              if m:
+                  items = json.loads(m.group(1))
+                  tech_count = len(items)
+                  cc = {}
+                  for it in items:
+                      cc[it.get('category', '')] = cc.get(it.get('category', ''), 0) + 1
+                  tech_cats = '、'.join(f'{c} {n} 条' for c, n in cc.items())
+                  # Pick up to 5 highlights (non-ArXiv first, then ArXiv)
+                  non_arxiv = [it for it in items if 'ArXiv' not in it.get('source', '')]
+                  picks = non_arxiv[:5] if len(non_arxiv) >= 5 else non_arxiv + items[:5 - len(non_arxiv)]
+                  seen = set()
+                  lines = []
+                  for it in picks:
+                      if it['title'] not in seen:
+                          seen.add(it['title'])
+                          lines.append(f\"  - [{it.get('source','')}] {it['title']}\")
+                  tech_highlights = chr(10).join(lines)
+          except Exception:
+              pass
+
+          total = pub_count + tech_count
+          subject = f'每日科研简报 — 文献 {pub_count} 篇 · 资讯 {tech_count} 条'
+
+          body_parts = [f'今日共收录 {total} 条内容。', '']
+
+          if pub_count:
+              body_parts.append(f'📚 PubMed 文献：{pub_count} 篇（{pub_topics}）')
+              body_parts.append(f'   在线查看 → https://shzzzayys.github.io/para-prot-signal/')
+              body_parts.append('')
+
+          if tech_count:
+              body_parts.append(f'🔬 AI & 半导体资讯：{tech_count} 条（{tech_cats}）')
+              body_parts.append(f'   在线查看 → https://shzzzayys.github.io/para-prot-signal/tech-news.html')
+              body_parts.append('')
+              if tech_highlights:
+                  body_parts.append('📌 今日要闻：')
+                  body_parts.append(tech_highlights)
+                  body_parts.append('')
+
+          body_parts.append('—— para.prot.signal · 自动简报')
+          body = chr(10).join(body_parts)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'subject={subject}\n')
+              # multiline body
+              import uuid
+              delim = uuid.uuid4().hex
+              f.write(f'body<<{delim}\n{body}\n{delim}\n')
+              f.write(f'total={total}\n')
+          "
+
+      - name: Send daily briefing email
+        if: steps.briefing.outputs.total != '0'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.qq.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.QQ_EMAIL }}
+          password: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
+          subject: ${{ steps.briefing.outputs.subject }}
+          to: 812862383@qq.com
+          from: ${{ secrets.QQ_EMAIL }}
+          body: ${{ steps.briefing.outputs.body }}
