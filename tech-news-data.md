@@ -1,4 +1,4 @@
-# AI & 半导体资讯 — 2026-05-14 14:11:04 +0800
+# AI & 半导体资讯 — 2026-05-14 06:15:20 +0000
 
 共 **857** 篇文章（AI 研究 757 · AI 产业 30 · 半导体 17 · 芯片/市场 53）
 
@@ -780,8 +780,8 @@
 | 6 | [Anthropic courts a new kind of customer: small business owners](https://techcrunch.com/2026/05/13/anthropic-courts-a-new-kind-of-customer-small-business-owners/) | TechCrunch AI | AI 产业 |
 | 7 | [Amazon launches an AI shopping assistant for the search bar, powered by Alexa+](https://techcrunch.com/2026/05/13/amazon-launches-an-ai-shopping-assistant-for-the-search-bar-powered-by-alexa/) | TechCrunch AI | AI 产业 |
 | 8 | [Introducing the 6 stages at TechCrunch Disrupt 2026 — built for today’s tougher startup market](https://techcrunch.com/2026/05/13/introducing-the-6-stages-of-techcrunch-disrupt-2026-built-for-todays-tougher-startup-market/) | TechCrunch AI | AI 产业 |
-| 9 | [WhatsApp adds an incognito mode in Meta AI chats](https://techcrunch.com/2026/05/13/whatsapp-adds-an-incognito-mode-in-meta-ai-chats/) | TechCrunch AI | AI 产业 |
-| 10 | [Anthropic now has more business customers than OpenAI, according to Ramp data](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/) | TechCrunch AI | AI 产业 |
+| 9 | [Anthropic now has more business customers than OpenAI, according to Ramp data](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/) | TechCrunch AI | AI 产业 |
+| 10 | [WhatsApp adds an incognito mode in Meta AI chats](https://techcrunch.com/2026/05/13/whatsapp-adds-an-incognito-mode-in-meta-ai-chats/) | TechCrunch AI | AI 产业 |
 | 11 | [Poppy debuts a proactive AI assistant to help organize your digital life](https://techcrunch.com/2026/05/13/poppy-debuts-a-proactive-ai-assistant-to-help-organize-your-digital-life/) | TechCrunch AI | AI 产业 |
 | 12 | [Adaption aims big with AutoScientist, an AI tool that helps models train themselves](https://techcrunch.com/2026/05/13/adaption-aims-big-with-autoscientist-an-ai-tool-that-helps-models-train-themselves/) | TechCrunch AI | AI 产业 |
 | 13 | [Medicare’s new payment model is built for AI, and most of the tech world has no idea](https://techcrunch.com/2026/05/12/medicares-new-payment-model-is-built-for-ai-and-most-of-the-tech-world-has-no-idea/) | TechCrunch AI | AI 产业 |

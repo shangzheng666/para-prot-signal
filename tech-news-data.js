@@ -1,4 +1,4 @@
-window.techNewsLastUpdated = "2026-05-14 14:11:04 +0800";
+window.techNewsLastUpdated = "2026-05-14 06:15:20 +0000";
 window.techNewsItems = [
   {
     "title": "Think Twice, Act Once: Verifier-Guided Action Selection For Embodied Agents",
@@ -6137,17 +6137,17 @@ window.techNewsItems = [
     "category": "AI 产业"
   },
   {
-    "title": "WhatsApp adds an incognito mode in Meta AI chats",
-    "link": "https://techcrunch.com/2026/05/13/whatsapp-adds-an-incognito-mode-in-meta-ai-chats/",
-    "description": "Meta said these incognito conversations are not saved, and messages will disappear by default once you close the chat.",
+    "title": "Anthropic now has more business customers than OpenAI, according to Ramp data",
+    "link": "https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/",
+    "description": "A survey compiled from fintech firm Ramp’s clients’ expense data shows 34.4% of participating businesses are paying for Anthropic services, more than any other AI lab, while only 32.3% pay for OpenAI.",
     "pub_date": "2026-05-13",
     "source": "TechCrunch AI",
     "category": "AI 产业"
   },
   {
-    "title": "Anthropic now has more business customers than OpenAI, according to Ramp data",
-    "link": "https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/",
-    "description": "A survey compiled from fintech firm Ramp’s clients’ expense data shows 34.4% of participating businesses are paying for Anthropic services, more than any other AI lab, while only 32.3% pay for OpenAI.",
+    "title": "WhatsApp adds an incognito mode in Meta AI chats",
+    "link": "https://techcrunch.com/2026/05/13/whatsapp-adds-an-incognito-mode-in-meta-ai-chats/",
+    "description": "Meta said these incognito conversations are not saved, and messages will disappear by default once you close the chat.",
     "pub_date": "2026-05-13",
     "source": "TechCrunch AI",
     "category": "AI 产业"
