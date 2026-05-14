@@ -1,0 +1,31 @@
+name: Fetch Tech News
+on:
+  schedule:
+    - cron: "30 0 * * *"   # UTC 00:30 = 北京时间 08:30
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch tech news
+        run: python scripts/fetch_tech_news.py --days 3
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tech-news-data.js tech-news-data.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Auto-update tech news $(date -u +%Y-%m-%d)"
+            git push
+          fi

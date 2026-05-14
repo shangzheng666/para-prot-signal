@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI & 半导体资讯</title>
+    <meta name="description" content="AI 前沿研究、产业动态与半导体/芯片行业资讯日报。" />
+    <link rel="icon" href="./assets/mark.svg" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f8faf9;
+        --text: #1f2933;
+        --muted: #6b7280;
+        --faint: #8b95a1;
+        --line: #d9e0e7;
+        --line-soft: #e9edf1;
+        --surface: #ffffff;
+        --accent: #0f766e;
+        --accent-soft: #dff3ee;
+        --indigo: #4338ca;
+        --indigo-soft: #e6e7ff;
+        --amber: #a16207;
+        --amber-soft: #fff3d7;
+        --rose: #be123c;
+        --rose-soft: #ffe4ec;
+        --radius: 7px;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        min-width: 320px; margin: 0;
+        background: linear-gradient(180deg, rgba(67, 56, 202, 0.06), transparent 170px), var(--bg);
+        color: var(--text);
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input { font: inherit; }
+      button { cursor: pointer; }
+
+      /* ── topbar ── */
+      .topbar {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; gap: 20px;
+        min-height: 54px;
+        padding: 10px max(18px, calc((100vw - 1120px) / 2));
+        border-bottom: 1px solid var(--line-soft);
+        background: rgba(248, 250, 249, 0.94);
+        backdrop-filter: blur(12px);
+      }
+      .brand {
+        display: flex; align-items: center; gap: 9px;
+        color: #111827; font-size: 15px; font-weight: 800;
+      }
+      .brand img { width: 28px; height: 28px; }
+      .nav-links { display: flex; gap: 14px; margin-left: auto; }
+      .nav-links a {
+        color: var(--muted); font-size: 14px; font-weight: 650;
+      }
+      .nav-links a:hover { color: var(--accent); }
+
+      /* ── main ── */
+      main {
+        width: min(1120px, calc(100vw - 36px));
+        margin: 0 auto; padding: 30px 0 56px;
+      }
+      .masthead {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+        gap: 24px; align-items: end; padding: 6px 0 22px;
+      }
+      .eyebrow {
+        margin: 0 0 8px; color: var(--muted);
+        font-size: 12px; font-weight: 800;
+        letter-spacing: 0; text-transform: uppercase;
+      }
+      h1 { margin: 0 0 7px; color: #111827; font-size: 34px; line-height: 1.1; }
+      .lede { margin: 0; color: #4b5563; font-size: 15px; }
+      .statusline { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+      .searchbar input {
+        width: 100%; min-height: 40px;
+        border: 1px solid var(--line); border-radius: var(--radius);
+        background: transparent; color: var(--text); padding: 0 12px; outline: none;
+      }
+      .searchbar input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+
+      /* ── tabs ── */
+      .tab-bar {
+        display: flex; flex-wrap: wrap; gap: 6px;
+        padding: 12px 0 14px;
+        border-top: 1px solid var(--line-soft);
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .tab-btn {
+        display: flex; align-items: center; gap: 7px;
+        min-height: 31px; border: 1px solid var(--line);
+        border-radius: 999px; background: transparent;
+        color: #4b5563; padding: 0 11px;
+        font-size: 13px; font-weight: 700;
+      }
+      .tab-btn .count { color: var(--faint); font-weight: 700; }
+      .tab-btn:hover, .tab-btn.active {
+        border-color: var(--accent);
+        background: var(--accent-soft); color: #0b5f59;
+      }
+
+      /* ── stats ── */
+      .feed-toolbar {
+        display: flex; justify-content: space-between;
+        gap: 16px; align-items: flex-start; padding: 14px 0 8px;
+      }
+      .feed-toolbar h2 {
+        margin: 0; color: #4b5563; font-size: 14px;
+      }
+      .feed-stats { margin: 3px 0 0; color: var(--muted); font-size: 12.5px; }
+
+      /* ── cards ── */
+      .feed-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+      .card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+        padding: 15px 16px 14px 14px;
+      }
+      .card[data-cat="AI 研究"]   { border-left-color: var(--indigo); }
+      .card[data-cat="AI 产业"]   { border-left-color: var(--accent); }
+      .card[data-cat="半导体"]     { border-left-color: var(--amber); }
+      .card[data-cat="芯片/市场"]  { border-left-color: var(--rose); }
+
+      .card-topline {
+        display: flex; flex-wrap: wrap; gap: 7px;
+        color: var(--muted); font-size: 12.5px; font-weight: 740;
+      }
+      .badge {
+        border-radius: 999px; padding: 2px 8px;
+        background: var(--accent-soft); color: var(--accent);
+      }
+      .badge.indigo  { background: var(--indigo-soft); color: var(--indigo); }
+      .badge.amber   { background: var(--amber-soft);  color: var(--amber); }
+      .badge.rose    { background: var(--rose-soft);    color: var(--rose); }
+
+      .card-title {
+        margin: 5px 0 0; font-size: 17px; line-height: 1.32;
+      }
+      .card-title a {
+        color: #111827; font-weight: 820;
+      }
+      .card-title a:hover { color: var(--accent); }
+      .card-desc {
+        display: -webkit-box; overflow: hidden;
+        -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+        margin: 8px 0 9px; color: #374151;
+        font-size: 13.5px; line-height: 1.55;
+      }
+      .card-meta {
+        display: flex; flex-wrap: wrap; gap: 6px;
+        color: var(--muted); font-size: 12.5px;
+      }
+      .card-meta span::after { margin-left: 6px; color: #c0c7cf; content: "\00b7"; }
+      .card-meta span:last-child::after { content: ""; }
+
+      .empty-state {
+        border-top: 1px solid var(--line-soft);
+        border-bottom: 1px solid var(--line-soft);
+        color: var(--muted); padding: 28px; text-align: center;
+      }
+
+      @media (max-width: 760px) {
+        .topbar { gap: 10px; padding-inline: 16px; }
+        main { width: min(100vw - 28px, 980px); padding-top: 22px; }
+        .masthead { grid-template-columns: 1fr; gap: 14px; }
+        h1 { font-size: 29px; }
+      }
+      @media (max-width: 560px) {
+        .card-title { font-size: 15px; }
+        .card-desc { -webkit-line-clamp: 2; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./tech-news.html">
+        <img src="./assets/mark.svg" alt="" width="32" height="32" />
+        <span>AI & 半导体资讯</span>
+      </a>
+      <nav class="nav-links">
+        <a href="./index.html">文献日报</a>
+        <a href="./tech-news.html">科技资讯</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="masthead">
+        <div>
+          <p class="eyebrow">AI · Semiconductor · Chip</p>
+          <h1>Tech News Board</h1>
+          <p class="lede">每日追踪 AI 前沿研究、产业动态与半导体芯片资讯。</p>
+          <p class="statusline" id="dataFreshness"></p>
+        </div>
+        <form class="searchbar" role="search" onsubmit="return false">
+          <label class="sr-only" for="newsSearch">搜索资讯</label>
+          <input id="newsSearch" type="search" placeholder="搜索标题、来源、关键词..." />
+        </form>
+      </section>
+
+      <!-- category tabs -->
+      <div class="tab-bar" id="tabBar"></div>
+
+      <div class="feed-toolbar">
+        <div>
+          <h2>最新资讯</h2>
+          <p class="feed-stats" id="feedStats"></p>
+        </div>
+      </div>
+
+      <ol class="feed-list" id="feedList"></ol>
+      <p class="empty-state" id="emptyState" hidden>没有匹配的资讯。</p>
+    </main>
+
+    <script src="./tech-news-data.js"></script>
+    <script>
+    (function () {
+      "use strict";
+
+      const CATEGORIES = ["全部", "AI 研究", "AI 产业", "半导体", "芯片/市场"];
+      const CAT_BADGE = {
+        "AI 研究": "indigo",
+        "AI 产业": "",
+        "半导体": "amber",
+        "芯片/市场": "rose",
+      };
+
+      const items = window.techNewsItems || [];
+      const lastUpdated = window.techNewsLastUpdated || "";
+
+      let activeCategory = "全部";
+      let searchQuery = "";
+
+      // ── freshness ──
+      const freshnessEl = document.getElementById("dataFreshness");
+      if (lastUpdated) {
+        freshnessEl.textContent = "数据更新于 " + lastUpdated;
+      }
+
+      // ── tabs ──
+      const tabBar = document.getElementById("tabBar");
+      function buildTabs() {
+        tabBar.innerHTML = "";
+        CATEGORIES.forEach(function (cat) {
+          const count = cat === "全部"
+            ? items.length
+            : items.filter(function (x) { return x.category === cat; }).length;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "tab-btn" + (cat === activeCategory ? " active" : "");
+          btn.innerHTML =
+            "<span>" + cat + "</span>" +
+            '<span class="count">' + count + "</span>";
+          btn.addEventListener("click", function () {
+            activeCategory = cat;
+            render();
+          });
+          tabBar.appendChild(btn);
+        });
+      }
+
+      // ── render ──
+      const feedList = document.getElementById("feedList");
+      const emptyState = document.getElementById("emptyState");
+      const feedStats = document.getElementById("feedStats");
+
+      function render() {
+        buildTabs();
+        var filtered = items;
+        if (activeCategory !== "全部") {
+          filtered = filtered.filter(function (x) {
+            return x.category === activeCategory;
+          });
+        }
+        if (searchQuery) {
+          var q = searchQuery.toLowerCase();
+          filtered = filtered.filter(function (x) {
+            return (
+              (x.title || "").toLowerCase().indexOf(q) !== -1 ||
+              (x.source || "").toLowerCase().indexOf(q) !== -1 ||
+              (x.description || "").toLowerCase().indexOf(q) !== -1
+            );
+          });
+        }
+        feedStats.textContent = "共 " + filtered.length + " 条资讯";
+        feedList.innerHTML = "";
+        if (filtered.length === 0) {
+          emptyState.hidden = false;
+          return;
+        }
+        emptyState.hidden = true;
+        filtered.forEach(function (item) {
+          var li = document.createElement("li");
+          var badgeCls = CAT_BADGE[item.category] || "";
+          li.className = "card";
+          li.setAttribute("data-cat", item.category);
+          li.innerHTML =
+            '<div class="card-topline">' +
+              '<span class="badge ' + badgeCls + '">' + esc(item.category) + "</span>" +
+              "<span>" + esc(item.source) + "</span>" +
+            "</div>" +
+            '<h3 class="card-title">' +
+              '<a href="' + esc(item.link) + '" target="_blank" rel="noopener">' +
+                esc(item.title) +
+              "</a>" +
+            "</h3>" +
+            (item.description
+              ? '<p class="card-desc">' + esc(item.description) + "</p>"
+              : "") +
+            '<div class="card-meta">' +
+              "<span>" + esc(item.pub_date || "未知日期") + "</span>" +
+              "<span>" + esc(item.source) + "</span>" +
+            "</div>";
+          feedList.appendChild(li);
+        });
+      }
+
+      function esc(s) {
+        var d = document.createElement("div");
+        d.textContent = s || "";
+        return d.innerHTML;
+      }
+
+      // ── search ──
+      document.getElementById("newsSearch").addEventListener("input", function (e) {
+        searchQuery = e.target.value.trim();
+        render();
+      });
+
+      render();
+    })();
+    </script>
+  </body>
+</html>
