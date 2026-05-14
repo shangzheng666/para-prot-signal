@@ -1,4 +1,4 @@
-window.techNewsLastUpdated = "2026-05-14 06:15:20 +0000";
+window.techNewsLastUpdated = "2026-05-14 06:19:11 +0000";
 window.techNewsItems = [
   {
     "title": "Think Twice, Act Once: Verifier-Guided Action Selection For Embodied Agents",
