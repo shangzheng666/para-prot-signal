@@ -134,6 +134,58 @@ window.researchItems = [ /* ... */ ];
 
 每条文献对象包含：`id`, `title`, `url`, `source`, `tag`, `topics`, `type`, `ageHours`, `score`, `journal`, `pubDate`, `authors`, `pmid`, `doi`, `why`。
 
+## 文献结构化提取（DeepSeek API）
+
+把本地 PDF 跑成一张 Excel 表，每篇一行 11 个字段（作者、年份、期刊、GBP1 物种、是否涉及 14-3-3、磷酸化位点、互作方法、关键结论、是否 *Toxoplasma/Neospora* 模型等）。脚本：`scripts/extract_pdf_literature.py`。
+
+### 安装
+
+```powershell
+pip install -r scripts/requirements-extract.txt
+```
+
+### 运行
+
+```powershell
+# 把 PDF 放到仓库根目录的 pdfs/ 下（已在 .gitignore，不会被提交）
+mkdir pdfs
+
+$env:DEEPSEEK_API_KEY = "sk-..."
+
+# 先 dry-run 验证 PDF 文本能正常抽出（不调 API、零成本）
+python scripts/extract_pdf_literature.py --dry-run --limit 3
+
+# 正式抽取
+python scripts/extract_pdf_literature.py
+```
+
+产物：
+
+| 文件 | 用途 |
+|------|------|
+| `extraction_summary.xlsx` | 一篇一行，11 字段 |
+| `extraction_log.txt` | 每篇 success / partial / failed 状态 |
+
+### 防幻觉规则（已写进 prompt）
+
+- 未在原文出现的信息一律 `N/A`，不允许推断
+- `phospho_sites`：原文逐字摘录（如 `Ser156`、`S156/T172`），不允许造位点
+- `key_conclusion`：从原文摘**一句话**，不允许改写
+
+### 人工质控建议
+
+- 跑完先看 stderr 的"Most-missing fields"——缺得最多的字段优先抽查
+- 随机抽 2–3 篇对照原文核对 `phospho_sites` 和 `key_conclusion`（最易幻觉的两个字段）
+- 扫描版 PDF 会被标记 `low_text_yield_likely_scanned_pdf_needs_ocr`，需先 OCR
+
+### 常用选项
+
+```powershell
+python scripts/extract_pdf_literature.py --limit 5            # 只跑前 5 篇
+python scripts/extract_pdf_literature.py --max-chars 20000    # 截短到 20K 字符省 token
+python scripts/extract_pdf_literature.py --pdf-dir D:/papers  # 指定别处的 PDF 目录
+```
+
 ## 部署
 
 当前使用 GitHub Pages：
