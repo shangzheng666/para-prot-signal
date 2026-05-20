@@ -184,8 +184,16 @@ def call_deepseek(api_key: str, paper_text: str, *, timeout: int = 120) -> str:
 
 
 def parse_llm_json(raw: str) -> dict[str, str]:
-  """Parse the LLM JSON and ensure all fields are present as strings."""
-  obj = json.loads(raw)
+  """Parse the LLM JSON and ensure all fields are present as strings.
+
+  DeepSeek occasionally wraps the object in a ```json code fence despite
+  json_object mode, so strip a fence if present before parsing.
+  """
+  text = raw.strip()
+  if text.startswith("```"):
+    text = re.sub(r"^```[a-zA-Z]*\n", "", text)
+    text = re.sub(r"\n```$", "", text.strip())
+  obj = json.loads(text)
   out: dict[str, str] = {}
   for key in LLM_FIELDS:
     value = obj.get(key, "")
@@ -350,16 +358,17 @@ def main() -> int:
     row, status = process_pdf(pdf, api_key, args.max_chars, args.dry_run)
     elapsed = time.time() - started
 
-    for f in LLM_FIELDS:
-      if row.get(f, "N/A") == "N/A":
-        field_miss_counter[f] += 1
+    if not args.dry_run:
+      for f in LLM_FIELDS:
+        if row.get(f, "N/A") == "N/A":
+          field_miss_counter[f] += 1
 
-    if status.startswith("success"):
-      success += 1
-    elif status.startswith("partial"):
-      partial += 1
-    else:
-      failed += 1
+      if status.startswith("success"):
+        success += 1
+      elif status.startswith("partial"):
+        partial += 1
+      else:
+        failed += 1
 
     rows.append(row)
     ts = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -377,6 +386,15 @@ def main() -> int:
   print("", file=sys.stderr)
   print(f"Wrote {len(rows)} rows to {out_xlsx}", file=sys.stderr)
   print(f"Wrote log to {out_log}", file=sys.stderr)
+
+  if args.dry_run:
+    print(
+      "Dry run complete: PDF text extraction verified, no API calls made. "
+      "See the log for any scanned-PDF (OCR) warnings.",
+      file=sys.stderr,
+    )
+    return 0
+
   print(
     f"Summary: success={success}  partial={partial}  failed={failed}",
     file=sys.stderr,
