@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Local PDF literature workspace
+pdfs/
+extraction_summary.xlsx
+extraction_log.txt
+extraction_review.md
