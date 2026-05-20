@@ -243,6 +243,142 @@ def write_excel(rows: list[dict[str, str]], out_path: Path) -> None:
   wb.save(out_path)
 
 
+def _is_value(v: str) -> bool:
+  """True if the field holds a real value (not blank / N/A / No)."""
+  return bool(v) and v.strip().upper() not in {"N/A", "NO", "NONE", ""}
+
+
+def _split_items(value: str) -> list[str]:
+  """Split a multi-value field on ';' or ',' (keeps '/' inside e.g. S156/T172)."""
+  if not _is_value(value):
+    return []
+  parts = re.split(r"\s*[;,]\s*", value.strip())
+  return [p.strip() for p in parts if p.strip()]
+
+
+def _isoform(has_14_3_3: str) -> str | None:
+  """Return the 14-3-3 isoform note if the paper involves 14-3-3, else None."""
+  if not _is_value(has_14_3_3):
+    return None
+  m = re.search(r"\(([^)]*)\)", has_14_3_3)
+  return m.group(1).strip() if m else "isoform unspecified"
+
+
+def _md_escape(text: str) -> str:
+  return text.replace("|", "\\|").replace("\n", " ").strip()
+
+
+def write_review(rows: list[dict[str, str]], out_path: Path) -> None:
+  """Build a deterministic cross-paper comparison markdown from extracted rows.
+
+  No new LLM inference: every line traces back to a cell in the Excel table,
+  so there is no additional hallucination risk.
+  """
+  generated_at = dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %z")
+  lines: list[str] = []
+  lines.append(f"# 跨论文对比综述 — {generated_at}")
+  lines.append("")
+  lines.append(
+    f"共 **{len(rows)}** 篇文献。本文档由 `extraction_summary.xlsx` 的字段"
+    "确定性汇总而成，未做额外 LLM 推断，每条均可追溯回表格。"
+  )
+  lines.append("")
+
+  # 1. Master comparison table
+  lines.append("## 1. 总览对比表")
+  lines.append("")
+  lines.append(
+    "| # | 文件 | GBP1 物种 | 14-3-3 | 磷酸化位点 | 互作方法 | Toxo/Neospora 模型 |"
+  )
+  lines.append("|---|------|-----------|--------|-----------|----------|---------------------|")
+  for i, r in enumerate(rows, 1):
+    lines.append(
+      f"| {i} | {_md_escape(r['filename'])} | {_md_escape(r['GBP1_species'])} | "
+      f"{_md_escape(r['has_14_3_3'])} | {_md_escape(r['phospho_sites'])} | "
+      f"{_md_escape(r['interaction_method'])} | "
+      f"{_md_escape(r['toxoplasma_neospora_model'])} |"
+    )
+  lines.append("")
+
+  # 2. Group by 14-3-3 isoform
+  lines.append("## 2. 按 14-3-3 isoform 分组")
+  lines.append("")
+  by_isoform: dict[str, list[dict[str, str]]] = {}
+  no_isoform: list[dict[str, str]] = []
+  for r in rows:
+    iso = _isoform(r["has_14_3_3"])
+    if iso is None:
+      no_isoform.append(r)
+    else:
+      by_isoform.setdefault(iso, []).append(r)
+  if by_isoform:
+    for iso in sorted(by_isoform):
+      lines.append(f"### {iso}")
+      for r in by_isoform[iso]:
+        sites = r["phospho_sites"] if _is_value(r["phospho_sites"]) else "位点未提及"
+        methods = r["interaction_method"] if _is_value(r["interaction_method"]) else "方法未提及"
+        lines.append(f"- {_md_escape(r['filename'])} — {_md_escape(sites)} — {_md_escape(methods)}")
+      lines.append("")
+  else:
+    lines.append("_无论文明确涉及 14-3-3。_")
+    lines.append("")
+  if no_isoform:
+    names = ", ".join(_md_escape(r["filename"]) for r in no_isoform)
+    lines.append(f"**未涉及 14-3-3 的论文（{len(no_isoform)}）**：{names}")
+    lines.append("")
+
+  # 3. Phospho-site catalog
+  lines.append("## 3. 磷酸化位点目录")
+  lines.append("")
+  site_to_papers: dict[str, list[str]] = {}
+  for r in rows:
+    for site in _split_items(r["phospho_sites"]):
+      site_to_papers.setdefault(site, []).append(r["filename"])
+  if site_to_papers:
+    lines.append("| 位点 | 出现于 |")
+    lines.append("|------|--------|")
+    for site in sorted(site_to_papers):
+      papers = ", ".join(_md_escape(p) for p in site_to_papers[site])
+      lines.append(f"| {_md_escape(site)} | {papers} |")
+  else:
+    lines.append("_未提取到任何磷酸化位点。_")
+  lines.append("")
+
+  # 4. Interaction-method matrix
+  lines.append("## 4. 互作验证方法矩阵")
+  lines.append("")
+  method_to_papers: dict[str, list[str]] = {}
+  for r in rows:
+    for method in _split_items(r["interaction_method"]):
+      method_to_papers.setdefault(method, []).append(r["filename"])
+  if method_to_papers:
+    lines.append("| 方法 | 论文数 | 论文 |")
+    lines.append("|------|--------|------|")
+    for method in sorted(method_to_papers, key=lambda k: (-len(method_to_papers[k]), k)):
+      papers = ", ".join(_md_escape(p) for p in method_to_papers[method])
+      lines.append(f"| {_md_escape(method)} | {len(method_to_papers[method])} | {papers} |")
+  else:
+    lines.append("_未提取到任何互作方法。_")
+  lines.append("")
+
+  # 5. Verbatim key conclusions (for citing)
+  lines.append("## 5. 各论文关键结论（原文摘录，便于引用）")
+  lines.append("")
+  for r in rows:
+    if not _is_value(r["key_conclusion"]):
+      continue
+    author = r["first_author"] if _is_value(r["first_author"]) else "?"
+    year = r["year"] if _is_value(r["year"]) else "?"
+    journal = r["journal"] if _is_value(r["journal"]) else "?"
+    lines.append(
+      f"- **{_md_escape(r['filename'])}** ({_md_escape(author)}, {_md_escape(year)}, "
+      f"{_md_escape(journal)}): {r['key_conclusion'].strip()}"
+    )
+  lines.append("")
+
+  out_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def process_pdf(
   pdf_path: Path,
   api_key: str,
@@ -320,6 +456,16 @@ def main() -> int:
     action="store_true",
     help="Skip API calls; only verify PDF text extraction.",
   )
+  parser.add_argument(
+    "--review",
+    action="store_true",
+    help="Also write a cross-paper comparison markdown (deterministic, no extra LLM).",
+  )
+  parser.add_argument(
+    "--review-out",
+    default="extraction_review.md",
+    help="Output path for the --review markdown.",
+  )
   args = parser.parse_args()
 
   pdf_dir = Path(args.pdf_dir)
@@ -386,6 +532,17 @@ def main() -> int:
   print("", file=sys.stderr)
   print(f"Wrote {len(rows)} rows to {out_xlsx}", file=sys.stderr)
   print(f"Wrote log to {out_log}", file=sys.stderr)
+
+  if args.review:
+    if args.dry_run:
+      print(
+        "Skipping --review: dry run has no extracted fields to compare.",
+        file=sys.stderr,
+      )
+    else:
+      review_out = Path(args.review_out)
+      write_review(rows, review_out)
+      print(f"Wrote cross-paper review to {review_out}", file=sys.stderr)
 
   if args.dry_run:
     print(

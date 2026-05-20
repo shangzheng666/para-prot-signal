@@ -178,12 +178,29 @@ python scripts/extract_pdf_literature.py
 - 随机抽 2–3 篇对照原文核对 `phospho_sites` 和 `key_conclusion`（最易幻觉的两个字段）
 - 扫描版 PDF 会被标记 `low_text_yield_likely_scanned_pdf_needs_ocr`，需先 OCR
 
+### 跨论文对比综述
+
+加 `--review`，跑完提取后额外生成 `extraction_review.md`，把所有论文横向汇总，专门服务写综述 / discussion：
+
+```powershell
+python scripts/extract_pdf_literature.py --review
+```
+
+内含 5 个区块，**全部由 Excel 字段确定性汇总，不做额外 LLM 推断**（无新增幻觉风险，每条可追溯回表格）：
+
+1. 总览对比表（物种 / 14-3-3 / 位点 / 方法 / 模型）
+2. 按 14-3-3 isoform 分组
+3. 磷酸化位点目录（位点 → 哪些论文）
+4. 互作方法矩阵（方法 → 论文数 → 论文）
+5. 各论文关键结论原文摘录（便于引用）
+
 ### 常用选项
 
 ```powershell
 python scripts/extract_pdf_literature.py --limit 5            # 只跑前 5 篇
 python scripts/extract_pdf_literature.py --max-chars 20000    # 截短到 20K 字符省 token
 python scripts/extract_pdf_literature.py --pdf-dir D:/papers  # 指定别处的 PDF 目录
+python scripts/extract_pdf_literature.py --review             # 额外出跨论文综述 md
 ```
 
 ## 部署
